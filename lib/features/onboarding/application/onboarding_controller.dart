@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:loop/features/onboarding/core/onboarding_question.dart';
 import 'package:loop/features/onboarding/core/onboarding_step.dart';
@@ -42,7 +43,7 @@ class OnboardingController extends ChangeNotifier {
     }
 
     _currentIndex = index;
-    
+
     notifyListeners();
   }
 
@@ -58,8 +59,7 @@ class OnboardingController extends ChangeNotifier {
       OnboardingQuestionType.input =>
         answer is String && answer.trim().isNotEmpty,
 
-      OnboardingQuestionType.time =>
-        answer is String && answer.trim().isNotEmpty,
+      OnboardingQuestionType.time => answer is TimeOfDay,
 
       OnboardingQuestionType.select => answer is String && answer.isNotEmpty,
 

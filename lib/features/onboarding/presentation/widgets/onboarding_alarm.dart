@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:loop/features/alarm/application/alarm_editor_controller.dart';
+import 'package:loop/features/alarm/presentation/widgets/alarm_editor.dart';
 
-class OnboardingAlarm extends StatefulWidget {
-  const OnboardingAlarm({super.key});
+class OnboardingAlarm extends StatelessWidget {
+  const OnboardingAlarm({
+    required this.controller,
+    super.key,
+  });
 
-  @override
-  State<OnboardingAlarm> createState() => _OnboardingAlarmState();
-}
+  final AlarmEditorController controller;
 
-class _OnboardingAlarmState extends State<OnboardingAlarm> {
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return AlarmEditor(controller: controller);
   }
 }

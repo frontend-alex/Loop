@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:loop/features/alarm/application/alarm_editor_controller.dart';
 import 'package:loop/features/onboarding/application/onboarding_controller.dart';
 import 'package:loop/features/onboarding/core/onboarding_step.dart';
 import 'package:loop/features/onboarding/data/onboarding_questions.dart';
 import 'package:loop/features/onboarding/presentation/widgets/onboarding_layout.dart';
 import 'package:loop/features/onboarding/presentation/widgets/onboarding_question_renderer.dart';
+import 'package:loop/features/onboarding/presentation/widgets/onboarding_alarm.dart';
 
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({required this.onComplete, super.key});
@@ -17,6 +19,8 @@ class OnboardingPage extends StatefulWidget {
 }
 
 class _OnboardingPageState extends State<OnboardingPage> {
+
+  late final AlarmEditorController _alarmEditorController;
   late final PageController _pageController;
   late final OnboardingController _onboardingController;
 
@@ -24,6 +28,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
   void initState() {
     super.initState();
 
+    _alarmEditorController = AlarmEditorController();
     _pageController = PageController();
     _onboardingController = OnboardingController();
   }
@@ -32,6 +37,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
   void dispose() {
     _pageController.dispose();
     _onboardingController.dispose();
+    _alarmEditorController.dispose();
 
     super.dispose();
   }
@@ -130,7 +136,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
     final step = OnboardingStep.values[index];
 
     return switch (step) {
-      OnboardingStep.alarm => const Center(child: Text('Set alarm')),
+      OnboardingStep.alarm => OnboardingAlarm(controller: _alarmEditorController),
 
       OnboardingStep.distractingApps => const Center(
         child: Text('Select distracting apps'),

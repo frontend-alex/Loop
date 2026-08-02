@@ -2,6 +2,7 @@ import 'package:awesome_datetime_picker/awesome_datetime_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:loop/features/onboarding/core/onboarding_question.dart';
+import 'package:loop/features/shared/presentation/widgets/cupertino_time_picker.dart';
 
 class OnboardingQuestionRenderer extends StatelessWidget {
   const OnboardingQuestionRenderer({
@@ -52,24 +53,16 @@ class OnboardingQuestionRenderer extends StatelessWidget {
         );
 
       case OnboardingQuestionType.time:
-        final initialTime = AwesomeTime(hour: 7, minute: 0);
+        final TimeOfDay selectedTime = switch (value) {
+          TimeOfDay time => time,
+          _ => const TimeOfDay(hour: 7, minute: 0),
+        };
 
-        return SizedBox(
-          child: CupertinoTimerPicker(
-            mode: CupertinoTimerPickerMode.hm,
-            initialTimerDuration: Duration(
-              hours: initialTime.hour,
-              minutes: initialTime.minute,
-            ),
-            onTimerDurationChanged: (duration) {
-              final time = AwesomeTime(
-                hour: duration.inHours,
-                minute: duration.inMinutes % 60,
-              );
-
-              onChanged('${time.hour}:${time.minute}');
-            },
-          ),
+        return CupertinoTimePicker(
+          time: selectedTime,
+          onChanged: (time) {
+            onChanged(time);
+          },
         );
 
       case OnboardingQuestionType.select:
