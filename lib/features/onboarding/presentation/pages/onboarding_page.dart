@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:loop/features/alarm/core/alarm.dart';
+import 'package:loop/features/alarm/data/alarm_bridge.dart';
+import 'package:loop/features/alarm/data/alarm_repository.dart';
 import 'package:loop/features/onboarding/application/onboarding_controller.dart';
 import 'package:loop/features/onboarding/core/onboarding_step.dart';
 import 'package:loop/features/onboarding/data/onboarding_questions.dart';
 import 'package:loop/features/onboarding/presentation/widgets/onboarding_layout.dart';
 import 'package:loop/features/onboarding/presentation/widgets/onboarding_question_renderer.dart';
+import 'package:loop/features/onboarding/presentation/widgets/onboarding_alarm.dart';
 
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({required this.onComplete, super.key});
@@ -17,6 +22,9 @@ class OnboardingPage extends StatefulWidget {
 }
 
 class _OnboardingPageState extends State<OnboardingPage> {
+  late Alarm _alarm;
+  late final AlarmBridge _alarmBridge;
+  late final AlarmRepository _alarmRepository;
   late final PageController _pageController;
   late final OnboardingController _onboardingController;
 
@@ -24,6 +32,9 @@ class _OnboardingPageState extends State<OnboardingPage> {
   void initState() {
     super.initState();
 
+    _alarm = Alarm.initial(id: '00000000-0000-0000-0000-000000000001');
+    _alarmBridge = AlarmBridge();
+    _alarmRepository = AlarmRepository();
     _pageController = PageController();
     _onboardingController = OnboardingController();
   }
@@ -32,13 +43,47 @@ class _OnboardingPageState extends State<OnboardingPage> {
   void dispose() {
     _pageController.dispose();
     _onboardingController.dispose();
-
     super.dispose();
   }
 
   Future<void> _continue() async {
     if (!_onboardingController.canContinue) {
       return;
+    }
+
+    if (_onboardingController.currentStep == OnboardingStep.alarm) {
+      try {
+        await _alarmRepository.update(_alarm);
+
+        final authorized = await _alarmBridge.requestAuthorization();
+
+        if (!authorized) {
+          throw StateError('Alarm permission was not granted.');
+        }
+
+        await _alarmBridge.schedule(_alarm);
+        
+      } on PlatformException catch (error) {
+        if (!mounted) {
+          return;
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(error.message ?? 'Unable to set alarm.')),
+        );
+
+        return;
+        
+      } on StateError catch (error) {
+        if (!mounted) {
+          return;
+        }
+
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(error.message)));
+        return;
+      }
     }
 
     final isLastStep =
@@ -130,7 +175,12 @@ class _OnboardingPageState extends State<OnboardingPage> {
     final step = OnboardingStep.values[index];
 
     return switch (step) {
-      OnboardingStep.alarm => const Center(child: Text('Set alarm')),
+      OnboardingStep.alarm => OnboardingAlarm(
+        alarm: _alarm,
+        onChanged: (alarm) {
+          _alarm = alarm;
+        },
+      ),
 
       OnboardingStep.distractingApps => const Center(
         child: Text('Select distracting apps'),

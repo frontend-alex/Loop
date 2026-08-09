@@ -1,15 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:loop/features/alarm/core/alarm.dart';
+import 'package:loop/features/alarm/presentation/widgets/alarm_editor.dart';
 
-class OnboardingAlarm extends StatefulWidget {
-  const OnboardingAlarm({super.key});
+class OnboardingAlarm extends StatelessWidget {
+  const OnboardingAlarm({
+    required this.alarm,
+    required this.onChanged,
+    super.key,
+  });
 
-  @override
-  State<OnboardingAlarm> createState() => _OnboardingAlarmState();
-}
+  final Alarm alarm;
+  final ValueChanged<Alarm> onChanged;
 
-class _OnboardingAlarmState extends State<OnboardingAlarm> {
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return AlarmEditor(
+      initialAlarm: alarm,
+      onChanged: onChanged,
+    );
   }
 }
