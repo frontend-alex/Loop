@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:loop/features/onboarding/core/onboarding_question.dart';
 import 'package:loop/features/onboarding/core/onboarding_step.dart';
 import 'package:loop/features/onboarding/data/onboarding_questions.dart';

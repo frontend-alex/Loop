@@ -1,11 +1,28 @@
 import 'package:loop/features/alarm/core/alarm.dart';
+import 'package:loop/features/alarm/data/interfaces/alarm_interface.dart';
 
-abstract interface class AlarmRepository {
-  Future<List<Alarm>> getAll();
+final class AlarmRepository implements AlarmInterface {
+  final Map<String, Alarm> _alarms = {};
 
-  Future<Alarm> create(Alarm alarm);
+  @override
+  Future<Alarm> create(Alarm alarm) async {
+    _alarms[alarm.id] = alarm;
+    return alarm;
+  }
 
-  Future<Alarm> update(Alarm alarm);
+  @override
+  Future<Alarm> update(Alarm alarm) async {
+    _alarms[alarm.id] = alarm;
+    return alarm;
+  }
 
-  Future<void> delete(String id);
+  @override
+  Future<void> delete(String id) async {
+    _alarms.remove(id);
+  }
+
+  @override
+  Future<Alarm?> getById(String id) async {
+    return _alarms[id];
+  }
 }

@@ -7,6 +7,7 @@ These rules apply to every request in this repository.
 - Do not create, edit, delete, or rename application source files.
 - Do not modify tests, dependencies, generated files, platform files, or configuration files unless the user explicitly asks for that exact file change.
 - When implementation is requested, explain the design and provide the proposed code or patch in the response only. Wait for explicit permission before applying it.
+- Treat `/write` as explicit permission to implement the current request. When `/write` is present, source edits are allowed and the implementation must be verified. Without `/write`, remain proposal-only.
 - Read the repository first and reference the exact files and symbols involved.
 
 ## Verification
@@ -15,6 +16,25 @@ These rules apply to every request in this repository.
 - Prefer Dart and Flutter documentation, package documentation on pub.dev, and primary platform documentation over blogs or generated summaries.
 - Cite the URLs used and distinguish documented facts from project recommendations.
 - Use read-only repository inspection and validation commands unless the user explicitly authorizes a change.
+
+## Flutter Skills
+
+- Repository-local Flutter and Dart skills are located under `.opencode/skills/flutter/*`.
+- Always load and follow the relevant skill from `.opencode/skills/flutter/` before working on Flutter, Dart, Riverpod, or Flutter platform-integration tasks.
+- If no dedicated Flutter or Dart skill is available in the environment, apply the Flutter and Dart rules in this file and verify framework or package behavior against official documentation.
+- For Flutter platform integrations, use both the relevant Flutter skill and the primary Android or Apple platform documentation.
+
+## Relevant Apple Skills
+
+- Repository-local Apple skills are located under `.opencode/skills/swift/*`.
+- Always load and follow the relevant skill from `.opencode/skills/swift/` before working on Swift, AlarmKit, iOS lifecycle, signing, or physical-device integration tasks.
+- Use [Swift Concurrency Pro](https://github.com/twostraws/Swift-Concurrency-Agent-Skill) for `async`/`await`, `Task`, actors, and AlarmKit calls.
+- Use [Background Execution Skill](https://github.com/n0an/Background-Execution-Agent-Skill) for AlarmKit behavior while the app is backgrounded, suspended, or terminated.
+- Use [iOS Simulator Skill](https://github.com/conorluddy/ios-simulator-skill) for simulator and physical-device installation, logs, permissions, and runtime verification.
+- Use [Swift Architecture Skill](https://github.com/efremidze/swift-architecture-skill) when changing the Flutter method-channel/native adapter boundary.
+- Use [Swift API Design Guidelines Agent Skill](https://github.com/Erikote04/Swift-API-Design-Guidelines-Agent-Skill) when adding or reviewing public Swift bridge APIs.
+- Use [iOS Code Audit](https://github.com/jazzychad/ios-code-audit) when reviewing native alarm, signing, permissions, or lifecycle changes.
+- Always validate Apple platform behavior against the relevant primary Apple documentation; third-party skills supplement but do not replace official documentation.
 
 ## Dart and Flutter Style
 
@@ -27,6 +47,9 @@ These rules apply to every request in this repository.
 - Use sound null safety, typed generic collections, explicit public API types, and immutable values where practical.
 - Keep widgets focused on rendering and user interaction. Keep data and business logic in typed controllers, view models, repositories, services, or domain objects.
 - Reuse feature-level components from onboarding instead of duplicating specialized behavior inside the onboarding page.
+- When using ports-and-adapters architecture, name interfaces as ports and implementations as adapters. Do not make a platform adapter implement an unrelated repository port.
+- Use the smallest architecture that keeps UI state, domain behavior, and real external boundaries clear. Do not add controllers, services, ports, folders, or layers speculatively or merely to satisfy a pattern.
+- Preserve genuinely reusable boundaries, but introduce abstractions only when there is a concrete external dependency, repeated behavior, or a real change expected in the app.
 
 ## React-to-Flutter Translation
 
@@ -50,6 +73,8 @@ These rules apply to every request in this repository.
 
 ## Source-Code Response Formatting
 
-- Put each Dart or Flutter filename in a Markdown heading outside the code block.
+- Put each Dart, Flutter, Swift, or Kotlin filename in a Markdown heading outside the code block.
 - Wrap Dart and Flutter source in a fenced Markdown block labelled `dart`.
-- Never output Dart source as an unlabelled or plain-text block.
+- Wrap Swift source in a fenced Markdown block labelled `swift`.
+- Wrap Kotlin source in a fenced Markdown block labelled `kotlin`.
+- Never output these languages as unlabelled or plain-text blocks.

@@ -1,40 +1,56 @@
 import 'package:flutter/material.dart';
-import 'package:loop/features/alarm/application/alarm_editor_controller.dart';
 import 'package:loop/features/alarm/core/alarm.dart';
 import 'package:loop/features/alarm/presentation/widgets/alarm_editor.dart';
 
-class AlarmEditorPage extends StatelessWidget {
+class AlarmEditorPage extends StatefulWidget {
   const AlarmEditorPage({
-    required this.controller,
+    required this.initialAlarm,
     required this.onSave,
     super.key,
   });
 
-  final AlarmEditorController controller;
-  final Future<void> Function(AlarmDraft draft) onSave;
+  final Alarm initialAlarm;
+  final Future<void> Function(Alarm alarm) onSave;
+
+  @override
+  State<AlarmEditorPage> createState() => _AlarmEditorPageState();
+}
+
+class _AlarmEditorPageState extends State<AlarmEditorPage> {
+  late Alarm _alarm;
+
+  @override
+  void initState() {
+    super.initState();
+    _alarm = widget.initialAlarm;
+  }
+
+  Future<void> _save() async {
+    await widget.onSave(_alarm);
+
+    if (mounted) {
+      Navigator.of(context).pop();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Alarm'),
-      ),
-      body: AlarmEditor(controller: controller),
-      bottomNavigationBar: ListenableBuilder(
-        listenable: controller,
-        builder: (context, child) {
-          return SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: FilledButton(
-                onPressed: controller.draft.isValid
-                    ? () => onSave(controller.draft)
-                    : null,
-                child: const Text('Save alarm'),
-              ),
-            ),
-          );
+      appBar: AppBar(title: const Text('Alarm')),
+      body: AlarmEditor(
+        initialAlarm: _alarm,
+        onChanged: (alarm) {
+          _alarm = alarm;
         },
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: FilledButton(
+            onPressed: _alarm.isValid ? _save : null,
+            child: const Text('Save alarm'),
+          ),
+        ),
       ),
     );
   }
