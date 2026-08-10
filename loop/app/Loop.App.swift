@@ -1,5 +1,5 @@
 //
-//  LoopApp.swift
+//  Loop.App.swift
 //  loop
 //
 //  Created by Aleksander Ivanov on 10/08/2026.

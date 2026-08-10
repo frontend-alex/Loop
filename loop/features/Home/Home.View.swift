@@ -1,13 +1,14 @@
 //
-//  SettingView.swift
+//  Home.View.swift
 //  loop
 //
 //  Created by Aleksander Ivanov on 10/08/2026.
 //
+
 import SwiftUI
 
-struct SettingsView: View {
+struct HomeView: View {
     var body: some View {
-        Text("Settings")
+        Text("Home")
     }
 }

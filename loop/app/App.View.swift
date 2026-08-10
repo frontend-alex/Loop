@@ -1,5 +1,5 @@
 //
-//  AppView.swift
+//  App.View.swift
 //  loop
 //
 //  Created by Aleksander Ivanov on 11/08/2026.
@@ -36,4 +36,3 @@ struct AppView: View {
         }
     }
 }
-

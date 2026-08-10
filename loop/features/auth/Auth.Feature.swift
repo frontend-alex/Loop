@@ -1,5 +1,5 @@
 //
-//  AuthFeature.swift
+//  Auth.Feature.swift
 //  loop
 //
 //  Created by Aleksander Ivanov on 11/08/2026.

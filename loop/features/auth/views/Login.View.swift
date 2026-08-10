@@ -1,13 +1,14 @@
 //
-//  RegisterView.swift
+//  Login.View.swift
 //  loop
 //
 //  Created by Aleksander Ivanov on 10/08/2026.
 //
+
 import SwiftUI
 import ComposableArchitecture
 
-struct RegisterView: View {
+struct LoginView: View {
     let store: StoreOf<AuthFeature>
 
     var body: some View {
@@ -28,14 +29,24 @@ struct RegisterView: View {
                 )
             )
 
-            Button("Register") {
-                store.send(.registerTapped)
+            Button("Login") {
+                store.send(.loginTapped)
             }
 
-            Button("Already have an account? Login") {
-                store.send(.showLogin)
+            Button("Create an account cicki") {
+                store.send(.showRegister)
             }
         }
         .padding()
     }
+}
+
+#Preview("Login Screen") {
+    LoginView(
+        store: Store(
+            initialState: AuthFeature.State(screen: .login)
+        ) {
+            AuthFeature()
+        }
+    )
 }

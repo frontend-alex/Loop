@@ -1,5 +1,5 @@
 //
-//  SplashView.swift
+//  Splash.View.swift
 //  loop
 //
 //  Created by Aleksander Ivanov on 10/08/2026.
