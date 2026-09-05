@@ -33,6 +33,10 @@ struct OnboardingFeature {
         case timeAnswerSelected(Date)
 
         case alarmSelected(Alarm)
+        case alarmSetTapped
+        case alarmSetSucceeded(UUID)
+        case alarmSetFailed(String)
+        
         case appsSelected([AppSelection])
         case taskAdded(TaskItem)
 
@@ -50,10 +54,15 @@ struct OnboardingFeature {
     var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
+                
+                
             case let .singleAnswerSelected(option):
                 let question = state.questions[state.questionIndex]
                 state.draft.answers[question.id] = .single(option)
                 return .none
+                
+                
+                
 
             case let .multipleAnswerToggled(option):
                 let question = state.questions[state.questionIndex]
@@ -75,22 +84,76 @@ struct OnboardingFeature {
                 state.draft.answers[question.id] = .multiple(selected)
                 return .none
 
+                
+                
+                
             case let .timeAnswerSelected(date):
                 let question = state.questions[state.questionIndex]
                 state.draft.answers[question.id] = .time(date)
                 return .none
+                
+                
+                
 
             case let .alarmSelected(alarm):
-                state.draft.alarm = alarm
+                var updatedAlarm = alarm;
+                updatedAlarm.scheduledID = state.draft.alarm?.scheduledID
+                state.draft.alarm = updatedAlarm
+                return .none
+                
+                
+                
+            
+            case .alarmSetTapped:
+                guard let alarm = state.draft.alarm else {
+                    return .none
+                }
+
+                state.isSaving = true
+
+                return .run { [alarm] send in
+                    do {
+                        if let oldID = alarm.scheduledID {
+                            try await AlarmScheduler.cancelAlarm(id: oldID)
+                        }
+
+                        print("Scheduling alarm:", alarm.time)
+                        let newID = try await AlarmScheduler.setAlarm(at: alarm.time)
+                        print("Alarm scheduled:", newID)
+                        
+                        await send(.alarmSetSucceeded(newID))
+                        
+                    } catch {
+                        await send(.alarmSetFailed(error.localizedDescription))
+                    }
+                }
+
+            case let .alarmSetSucceeded(id):
+                state.isSaving = false
+                state.draft.alarm?.scheduledID = id
+                state.step = .apps
                 return .none
 
+            case let .alarmSetFailed(message):
+                state.isSaving = false
+                state.errorMessage = message
+                return .none
+                
+                
+                
+                
             case let .appsSelected(apps):
                 state.draft.distractingApps = apps
                 return .none
+                
+                
 
             case let .taskAdded(task):
                 state.draft.tasks.append(task)
                 return .none
+                
+                
+                
 
             case .nextTapped:
                 switch state.step {
@@ -132,6 +195,7 @@ struct OnboardingFeature {
                 }
 
                 return .none
+                
 
             case .finishTapped:
                 // The API submission will be added through an injected dependency.

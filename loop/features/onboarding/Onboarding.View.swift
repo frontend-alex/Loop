@@ -26,19 +26,29 @@ struct OnboardingView: View {
     }
     
     private var bottomBar: some View {
-        Button(
-            store.step == .summary
-                ? "Finish"
-                : "Continue"
-        ) {
-            store.send(
-                store.step == .summary
-                ? .finishTapped
-                : .nextTapped
+        Button {
+            switch store.step {
+                   case .alarm:
+                       store.send(.alarmSetTapped)
+
+                   case .summary:
+                       store.send(.finishTapped)
+
+                   default:
+                       store.send(.nextTapped)
+                   }
+
+        } label: {
+            Text(
+                store.step == .alarm
+                ? "Set Alarm"
+                :store.step == .summary
+                    ? "Finish"
+                    : "Continue"
             )
         }
     }
-
+    
     private func isSelected(
         _ option: String,
         for question: Question
@@ -52,17 +62,17 @@ struct OnboardingView: View {
             return false
         }
     }
-
+    
     private var questionView: some View {
         let question = store.questions[store.questionIndex]
-
+        
         return VStack(spacing: 16) {
             Text(question.heading)
                 .font(.title)
-
+            
             Text(question.subHeading)
                 .foregroundStyle(.secondary)
-
+            
             switch question.body {
             case let .single(options):
                 ForEach(options, id: \.self) { option in
@@ -71,9 +81,9 @@ struct OnboardingView: View {
                     } label: {
                         HStack {
                             Text(option)
-
+                            
                             Spacer()
-
+                            
                             if isSelected(option, for: question) {
                                 Image(systemName: "checkmark.circle.fill")
                             }
@@ -83,11 +93,11 @@ struct OnboardingView: View {
                     .buttonStyle(.bordered)
                     .tint(
                         isSelected(option, for: question)
-                            ? .accentColor
-                            : .secondary
+                        ? .accentColor
+                        : .secondary
                     )
                 }
-
+                
             case let .multiple(options):
                 ForEach(options, id: \.self) { option in
                     Button {
@@ -95,9 +105,9 @@ struct OnboardingView: View {
                     } label: {
                         HStack {
                             Text(option)
-
+                            
                             Spacer()
-
+                            
                             if isSelected(option, for: question) {
                                 Image(systemName: "checkmark.circle.fill")
                             }
@@ -107,11 +117,11 @@ struct OnboardingView: View {
                     .buttonStyle(.bordered)
                     .tint(
                         isSelected(option, for: question)
-                            ? .accentColor
-                            : .secondary
+                        ? .accentColor
+                        : .secondary
                     )
                 }
-
+                
             case .time:
                 DatePicker(
                     "Select time",
@@ -120,7 +130,7 @@ struct OnboardingView: View {
                             if case let .time(date) = store.draft.answers[question.id] {
                                 return date
                             }
-
+                            
                             return Date()
                         },
                         set: { date in
@@ -132,7 +142,7 @@ struct OnboardingView: View {
             }
         }
     }
-
+    
     var body: some View {
         VStack(spacing: 16)
         {
@@ -143,8 +153,13 @@ struct OnboardingView: View {
             switch store.step {
             case .questions:
                 questionView
+                
             case .alarm:
-                AlarmView()
+                AlarmView(
+                    onAlarmChanged: { alarm in
+                        store.send(.alarmSelected(alarm))
+                    }
+                )
             case .apps:
                 Text("Apps")
             case .tasks:
@@ -161,12 +176,12 @@ struct OnboardingView: View {
 }
 
 
-#Preview {
-    OnboardingView(
-       store: Store(
-         initialState: OnboardingFeature.State(step: .alarm)
-       ) {
-           OnboardingFeature()
-       }
-    )
-}
+//#Preview {
+//    OnboardingView(
+//        store: Store(
+//            initialState: OnboardingFeature.State(step: .alarm)
+//        ) {
+//            OnboardingFeature()
+//        }
+//    )
+//}

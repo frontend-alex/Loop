@@ -60,8 +60,9 @@ enum QuestionAnswer: Equatable, Codable, Sendable {
 }
 
 struct Alarm: Equatable, Codable, Sendable {
+    var scheduledID: UUID?
     var time: Date
-    var weekdays: Set<Int>
+    var isRepeating: Bool
 }
 
 struct AppSelection: Equatable, Codable, Sendable, Identifiable {
