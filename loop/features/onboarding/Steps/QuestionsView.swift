@@ -1,69 +1,18 @@
 //
-//  Onboarding.View.swift
+//  Questions.swift
 //  loop
 //
-//  Created by Aleksander Ivanov on 10/08/2026.
+//  Created by Aleksander Ivanov on 10/09/2026.
 //
 
 import SwiftUI
 import ComposableArchitecture
 
-struct OnboardingView: View {
-    let store: StoreOf<OnboardingFeature>
+struct QuestionsView: View {
     
-    private var topBar: some View {
-        HStack {
-            Button("Back"){
-                store.send(.backTapped)
-            }
-            .disabled(
-                store.step == .questions && store.questionIndex == 0
-            )
-            
-            Spacer()
-        }
-        .padding()
-    }
-    
-    private var bottomBar: some View {
-        Button {
-            switch store.step {
-                   case .alarm:
-                       store.send(.alarmSetTapped)
-
-                   case .summary:
-                       store.send(.finishTapped)
-
-                   default:
-                       store.send(.nextTapped)
-                   }
-
-        } label: {
-            Text(
-                store.step == .alarm
-                ? "Set Alarm"
-                :store.step == .summary
-                    ? "Finish"
-                    : "Continue"
-            )
-        }
-    }
-    
-    private func isSelected(
-        _ option: String,
-        for question: Question
-    ) -> Bool {
-        switch store.draft.answers[question.id] {
-        case let .single(selected):
-            return selected == option
-        case let .multiple(selected):
-            return selected.contains(option)
-        default:
-            return false
-        }
-    }
-    
-    private var questionView: some View {
+    let store: StoreOf<OnboardingProvider>
+  
+    var body: some View {
         let question = store.questions[store.questionIndex]
         
         return VStack(spacing: 16) {
@@ -143,45 +92,18 @@ struct OnboardingView: View {
         }
     }
     
-    var body: some View {
-        VStack(spacing: 16)
-        {
-            topBar
-            
-            Spacer()
-            
-            switch store.step {
-            case .questions:
-                questionView
-                
-            case .alarm:
-                AlarmView(
-                    onAlarmChanged: { alarm in
-                        store.send(.alarmSelected(alarm))
-                    }
-                )
-            case .apps:
-                Text("Apps")
-            case .tasks:
-                Text("Tasks")
-            case .summary:
-                Text("Summary")
-            }
-            
-            Spacer()
-            
-            bottomBar
+    
+    private func isSelected(
+        _ option: String,
+        for question: Question
+    ) -> Bool {
+        switch store.draft.answers[question.id] {
+        case let .single(selected):
+            return selected == option
+        case let .multiple(selected):
+            return selected.contains(option)
+        default:
+            return false
         }
     }
 }
-
-
-//#Preview {
-//    OnboardingView(
-//        store: Store(
-//            initialState: OnboardingFeature.State(step: .alarm)
-//        ) {
-//            OnboardingFeature()
-//        }
-//    )
-//}

@@ -9,7 +9,7 @@ import SwiftUI
 import ComposableArchitecture
 
 struct AppView: View {
-    let store: StoreOf<AppFeature>
+    let store: StoreOf<AppProvider>
     
     var body: some View {
         switch store.route {

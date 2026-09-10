@@ -14,8 +14,8 @@ struct loopApp: App {
     var body: some Scene {
         WindowGroup {
             AppView(
-                store: Store(initialState: AppFeature.State()) {
-                    AppFeature()
+                store: Store(initialState: AppProvider.State()) {
+                    AppProvider()
                 }
             )
         }

@@ -1,5 +1,5 @@
 //
-//  App.Feature.swift
+//  App.Provider.swift
 //  loop
 //
 //  Created by Aleksander Ivanov on 11/08/2026.
@@ -8,35 +8,35 @@
 import ComposableArchitecture
 
 @Reducer
-struct AppFeature {
+struct AppProvider {
     @ObservableState
-    struct State : Equatable {
+    struct State: Equatable {
         enum Route: Equatable {
             case splash
             case auth
             case home
             case onboarding
         }
-        
+
         var route: Route = .splash
-        var auth = AuthFeature.State()
-        var onboarding = OnboardingFeature.State()
+        var auth = AuthProvider.State()
+        var onboarding = OnboardingProvider.State()
     }
-    
+
     enum Action {
         case splashFinished
-        case auth(AuthFeature.Action)
-        case onboarding(OnboardingFeature.Action)
+        case auth(AuthProvider.Action)
+        case onboarding(OnboardingProvider.Action)
     }
-    
+
     var body: some Reducer<State, Action> {
         Scope(state: \.auth, action: \.auth) {
-            AuthFeature()
+            AuthProvider()
         }
         Scope(state: \.onboarding, action: \.onboarding) {
-            OnboardingFeature()
+            OnboardingProvider()
         }
-        
+
         Reduce { state, action in
             switch action {
             case .splashFinished:

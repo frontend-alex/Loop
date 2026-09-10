@@ -9,7 +9,7 @@ import SwiftUI
 import ComposableArchitecture
 
 struct LoginView: View {
-    let store: StoreOf<AuthFeature>
+    let store: StoreOf<AuthProvider>
 
     var body: some View {
         VStack(spacing: 16) {
@@ -44,9 +44,9 @@ struct LoginView: View {
 #Preview("Login Screen") {
     LoginView(
         store: Store(
-            initialState: AuthFeature.State(screen: .login)
+            initialState: AuthProvider.State(screen: .login)
         ) {
-            AuthFeature()
+            AuthProvider()
         }
     )
 }

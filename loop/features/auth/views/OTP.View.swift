@@ -9,7 +9,7 @@ import SwiftUI
 import ComposableArchitecture
 
 struct OTPView: View {
-    let store: StoreOf<AuthFeature>
+    let store: StoreOf<AuthProvider>
 
     var body: some View {
         VStack(spacing: 16) {

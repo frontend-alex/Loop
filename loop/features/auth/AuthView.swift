@@ -2,7 +2,7 @@ import SwiftUI
 import ComposableArchitecture
 
 struct AuthView: View {
-    let store: StoreOf<AuthFeature>
+    let store: StoreOf<AuthProvider>
 
     var body: some View {
         switch store.screen {

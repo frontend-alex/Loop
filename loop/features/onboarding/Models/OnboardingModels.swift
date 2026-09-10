@@ -4,6 +4,7 @@
 //
 //  Created by Aleksander Ivanov on 11/08/2026.
 //
+
 import Foundation
 
 enum QuestionBody: Equatable, Codable, Sendable {
@@ -11,7 +12,6 @@ enum QuestionBody: Equatable, Codable, Sendable {
     case multiple(options: [String])
     case time
 }
-
 
 struct Question: Identifiable, Equatable, Codable, Sendable {
     let id: String
@@ -65,9 +65,12 @@ struct Alarm: Equatable, Codable, Sendable {
     var isRepeating: Bool
 }
 
-struct AppSelection: Equatable, Codable, Sendable, Identifiable {
-    var id: String
-    var name: String
+struct AppSelection: Codable, Equatable, Sendable {
+    let encodedSelection: Data
+
+    static let empty = AppSelection(
+        encodedSelection: Data()
+    )
 }
 
 struct TaskItem: Equatable, Codable, Sendable, Identifiable {
