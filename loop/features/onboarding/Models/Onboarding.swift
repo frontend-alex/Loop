@@ -7,6 +7,17 @@
 
 import Foundation
 
+// MARK: - Onboarding state
+
+struct OnboardingDraft: Equatable, Codable, Sendable {
+    var answers: [String: QuestionAnswer] = [:]
+    var alarm: Alarm?
+    var distractingApps: [AppSelection] = []
+    var tasks: [TaskItem] = []
+}
+
+// MARK: - Questions
+
 enum QuestionBody: Equatable, Codable, Sendable {
     case single(options: [String])
     case multiple(options: [String])
@@ -59,11 +70,7 @@ enum QuestionAnswer: Equatable, Codable, Sendable {
     case time(Date)
 }
 
-struct Alarm: Equatable, Codable, Sendable {
-    var scheduledID: UUID?
-    var time: Date
-    var isRepeating: Bool
-}
+// MARK: - App selection
 
 struct AppSelection: Codable, Equatable, Sendable {
     let encodedSelection: Data
@@ -73,15 +80,10 @@ struct AppSelection: Codable, Equatable, Sendable {
     )
 }
 
+// MARK: - Tasks
+
 struct TaskItem: Equatable, Codable, Sendable, Identifiable {
     var id: UUID
     var title: String
     var dueDate: Date?
-}
-
-struct OnboardingDraft: Equatable, Codable, Sendable {
-    var answers: [String: QuestionAnswer] = [:]
-    var alarm: Alarm?
-    var distractingApps: [AppSelection] = []
-    var tasks: [TaskItem] = []
 }

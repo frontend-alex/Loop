@@ -17,6 +17,54 @@ These rules apply to every request in this repository.
 - Cite the URLs used and distinguish documented facts from project recommendations.
 - Use read-only repository inspection and validation commands unless the user explicitly authorizes a change.
 
+## SwiftUI Design System
+
+- Keep the design system limited to reusable primitives and component behavior. Do not put screen-specific layout decisions such as `screenHorizontalPadding`, `contentPadding`, or `bottomBarPadding` in global design-system files.
+- Use `DesignSystem.Spacing` for the shared spacing scale. Use the 4pt/8pt grid: `xs = 4`, `sm = 8`, `md = 16`, `lg = 24`, and `xl = 32`.
+- Use `16pt` as the default horizontal content inset on iPhone unless the feature has a documented reason to use another value.
+- Use `safeAreaPadding` when content must respect system areas such as the notch or home indicator. Use `padding` when only the content needs an inset while the background remains edge-to-edge.
+- Keep feature-specific layout values next to the feature that owns the layout. Name them by intent, such as `artworkBottomInset`, `sectionSpacing`, or `actionSpacing`.
+- Use `8pt` for tightly related elements, `16pt` for normal element spacing, `24pt` between sections, and `32pt` for major visual separation.
+- Keep interactive controls at least `44pt` by `44pt`, including icon-only buttons.
+- Prefer SwiftUI layout containers and spacing over arbitrary offsets. Do not use `offset` to create normal layout spacing.
+- Do not introduce generic names whose meaning depends on a particular screen hierarchy, such as `contentHorizontal`, `screenHorizontal`, or `bottomBarVertical`, into global tokens.
+
+Good:
+
+```swift
+enum DesignSystem {
+    enum Spacing {
+        static let xs: CGFloat = 4
+        static let sm: CGFloat = 8
+        static let md: CGFloat = 16
+        static let lg: CGFloat = 24
+        static let xl: CGFloat = 32
+    }
+}
+
+private enum OnboardingLayout {
+    static let sectionSpacing = DesignSystem.Spacing.md
+    static let horizontalInset = DesignSystem.Spacing.md
+}
+
+VStack(spacing: OnboardingLayout.sectionSpacing) {
+    content
+}
+.safeAreaPadding(.horizontal, OnboardingLayout.horizontalInset)
+```
+
+Bad:
+
+```swift
+enum AppInsets {
+    static let screenHorizontal: CGFloat = 16
+    static let contentHorizontal: CGFloat = 8
+    static let bottomBarVertical: CGFloat = 8
+}
+```
+
+- Treat the [Apple Human Interface Guidelines](https://developer.apple.com/design/human-interface-guidelines/) and SwiftUI layout APIs such as [`safeAreaPadding`](https://developer.apple.com/documentation/swiftui/view/safeareapadding(_:)) as the platform guidance. The spacing scale and feature-level naming rules above are Loop project conventions.
+
 ## Flutter Skills
 
 - Repository-local Flutter and Dart skills are located under `.opencode/skills/flutter/*`.

@@ -3,6 +3,6 @@
 <plist version="1.0">
 <dict>
 	<key>NSAlarmKitUsageDescription</key>
-	<string></string>
+	<string>Loop uses alarms to wake you and start your Morning Lock session.</string>
 </dict>
 </plist>

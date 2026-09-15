@@ -1,5 +1,5 @@
 //
-//  Splash.View.swift
+//  Splash.swift
 //  loop
 //
 //  Created by Aleksander Ivanov on 10/08/2026.
@@ -26,7 +26,7 @@ struct SplashView: View {
         }
         
         .task {
-            try? await Task.sleep(for: .seconds(1))
+            try? await Task.sleep(for: .seconds(2))
             onFinished()
         }
     }

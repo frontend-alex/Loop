@@ -1,5 +1,5 @@
 //
-//  AlarmScheduler.swift
+//  Scheduler.swift
 //  loop
 //
 //  Created by Aleksander Ivanov on 05/09/2026.

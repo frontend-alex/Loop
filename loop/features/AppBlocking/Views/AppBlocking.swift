@@ -1,5 +1,5 @@
 //
-//  AppBlockingView.swift
+//  AppBlocking.swift
 //  loop
 //
 //  Created by Aleksander Ivanov on 10/09/2026.
@@ -9,9 +9,9 @@ import FamilyControls
 import ComposableArchitecture
 
 #if targetEnvironment(simulator)
-private let appBlockingService: AppBlockingPort = AppBlockingService()
+private let appBlockingService: AppBlockingPort = _AppBlockingService()
 #else
-private let appBlockingService: AppBlockingPort = AppBlockingService()
+private let appBlockingService: AppBlockingPort = _AppBlockingService()
 #endif
 
 struct AppBlockingView: View {
@@ -42,20 +42,36 @@ struct AppBlockingView: View {
     }
 
     var body: some View {
-        VStack(spacing: 20) {
-            Text("Choose distracting apps")
-                .font(.title2.bold())
-
-            Text("Select the apps you want Loop to restrict during a focus session.")
-                .multilineTextAlignment(.center)
-                .foregroundStyle(.secondary)
-
+        VStack(spacing: DesignSystem.Spacing.md) {
             switch store.appsAuthorizationStatus {
-                
-            case .unknown, .requesting:
+
+            case .unknown:
+                AppBlockingPermission(
+                    title: "Protect your focus",
+                    description: "Loop needs permission to restrict distracting apps during a focus session.",
+                    primaryActionTitle: "Enable App Blocking",
+                    secondaryActionTitle: "Skip for Now",
+                    primaryAction: {
+                        Task {
+                            await requestAuthorization()
+                        }
+                    },
+                    secondaryAction: {
+                        store.send(.appsPermissionSkipped)
+                    }
+                )
+
+            case .requesting:
                 ProgressView("Requesting permission...")
 
             case .authorized:
+                Text("Choose distracting apps")
+                    .font(.title2.bold())
+
+                Text("Select the apps you want Loop to restrict during a focus session.")
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(.secondary)
+
                 Button("Choose Apps") {
                     isPickerPresented = true
                 }
@@ -78,19 +94,23 @@ struct AppBlockingView: View {
                 }
 
             case .denied:
-                Text(store.appsErrorMessage ?? "Family Controls permission is required.")
-                    .multilineTextAlignment(.center)
-
-                Button("Try Again") {
-                    Task {
-                        await requestAuthorization()
+                AppBlockingPermission(
+                    title: "App blocking is off",
+                    description: store.appsErrorMessage ?? "Family Controls permission is required to restrict distracting apps.",
+                    primaryActionTitle: "Try Again",
+                    secondaryActionTitle: "Skip for Now",
+                    primaryAction: {
+                        Task {
+                            await requestAuthorization()
+                        }
+                    },
+                    secondaryAction: {
+                        store.send(.appsPermissionSkipped)
                     }
-                }
+                )
             }
         }
-        .padding()
         .task {
-            await requestAuthorization()
             if let restorationError {
                 store.send(.appsSelectionSaveFailed(restorationError))
             }

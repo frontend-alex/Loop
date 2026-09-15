@@ -7,6 +7,7 @@
 
 import Foundation
 import ComposableArchitecture
+import AlarmKit
 
 @Reducer
 struct OnboardingProvider {
@@ -22,12 +23,14 @@ struct OnboardingProvider {
 
         var questions = Question.all
         var questionIndex = 0
-        var step: Step = .alarm
+        var step: Step = .questions
         var draft = OnboardingDraft()
         var isSaving = false
         var errorMessage: String?
-        
-        
+
+        var alarmAuthorizationStatus: AlarmAuthorizationStatus = .unknown
+        var alarmErrorMessage: String?
+
         var appsAuthorizationStatus: AppsAuthorizationStatus = .unknown
         var appsErrorMessage: String?
         var isSavingApps = false
@@ -39,6 +42,11 @@ struct OnboardingProvider {
         case timeAnswerSelected(Date)
 
         case alarmSelected(Alarm)
+        case alarmAuthorizationChecked(AlarmAuthorizationStatus)
+        case alarmAuthorizationRequested
+        case alarmAuthorizationSucceeded(Bool)
+        case alarmAuthorizationFailed(String)
+        case alarmPermissionSkipped
         case alarmSetTapped
         case alarmSetSucceeded(UUID)
         case alarmSetFailed(String)
@@ -48,6 +56,7 @@ struct OnboardingProvider {
         case appsAuthorizationRequested
         case appsAuthorizationSucceeded(Bool)
         case appsAuthorizationFailed(String)
+        case appsPermissionSkipped
         case appsSelectionChanged(AppSelection)
         case appsSelectionSaveFailed(String)
         
@@ -64,6 +73,13 @@ struct OnboardingProvider {
         }
     }
     enum AppsAuthorizationStatus: Equatable {
+        case unknown
+        case requesting
+        case authorized
+        case denied
+    }
+
+    enum AlarmAuthorizationStatus: Equatable {
         case unknown
         case requesting
         case authorized
@@ -109,6 +125,35 @@ struct OnboardingProvider {
                 var updatedAlarm = alarm
                 updatedAlarm.scheduledID = state.draft.alarm?.scheduledID
                 state.draft.alarm = updatedAlarm
+                return .none
+
+            case let .alarmAuthorizationChecked(status):
+                state.alarmAuthorizationStatus = status
+                return .none
+
+            case .alarmAuthorizationRequested:
+                state.alarmAuthorizationStatus = .requesting
+                state.alarmErrorMessage = nil
+                return .run { @MainActor send in
+                    do {
+                        let status = try await AlarmManager.shared.requestAuthorization()
+                        await send(.alarmAuthorizationSucceeded(status == .authorized))
+                    } catch {
+                        await send(.alarmAuthorizationFailed(error.localizedDescription))
+                    }
+                }
+
+            case let .alarmAuthorizationSucceeded(authorized):
+                state.alarmAuthorizationStatus = authorized ? .authorized : .denied
+                return .none
+
+            case let .alarmAuthorizationFailed(message):
+                state.alarmAuthorizationStatus = .denied
+                state.alarmErrorMessage = message
+                return .none
+
+            case .alarmPermissionSkipped:
+                state.step = .apps
                 return .none
 
             case .alarmSetTapped:
@@ -167,6 +212,10 @@ struct OnboardingProvider {
 
             case let .appsSelectionSaveFailed(message):
                 state.appsErrorMessage = message
+                return .none
+
+            case .appsPermissionSkipped:
+                state.step = .tasks
                 return .none
 
             case let .taskAdded(task):

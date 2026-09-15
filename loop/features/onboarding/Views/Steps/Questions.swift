@@ -15,7 +15,7 @@ struct QuestionsView: View {
     var body: some View {
         let question = store.questions[store.questionIndex]
         
-        return VStack(spacing: 16) {
+        return VStack {
             Text(question.heading)
                 .font(.title)
             
@@ -106,4 +106,16 @@ struct QuestionsView: View {
             return false
         }
     }
+}
+
+
+#Preview{
+    QuestionsView(store: Store(
+        initialState: OnboardingProvider.State(
+            step: .alarm,
+            alarmAuthorizationStatus: .authorized
+        )
+    ) {
+        OnboardingProvider()
+    })
 }

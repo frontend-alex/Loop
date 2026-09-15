@@ -1,5 +1,5 @@
 //
-//  OTP.View.swift
+//  OTP.swift
 //  loop
 //
 //  Created by Aleksander Ivanov on 11/08/2026.
