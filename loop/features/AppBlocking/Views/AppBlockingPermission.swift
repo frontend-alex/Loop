@@ -8,8 +8,6 @@
 import SwiftUI
 
 struct AppBlockingPermission: View {
-    var tint: Color = .orange
-
     var title: String
     var description: String
 
@@ -20,137 +18,78 @@ struct AppBlockingPermission: View {
     var primaryAction: () -> Void
     var secondaryAction: () -> Void
 
-    @Environment(\.accessibilityReduceMotion) private var accessibilityReduceMotion
-    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
-    @State private var lockedIcons: Set<String> = []
+    @State private var lockPhases: [String: LockPhase] = [:]
 
     private struct MockApp: Identifiable {
         let id: String
-        let icon: String
-        let color: Color
-        let isLockable: Bool
     }
 
     private let mockApps = [
-        MockApp(id: "game", icon: "gamecontroller.fill", color: .red, isLockable: true),
-        MockApp(id: "video", icon: "play.rectangle.fill", color: .orange, isLockable: true),
-        MockApp(id: "social", icon: "music.note", color: .pink, isLockable: true),
-        MockApp(id: "book", icon: "book.fill", color: .blue, isLockable: false),
-        MockApp(id: "music", icon: "headphones", color: .teal, isLockable: false),
-        MockApp(id: "reading", icon: "leaf.fill", color: .green, isLockable: false)
+        MockApp(id: "one"),
+        MockApp(id: "two"),
+        MockApp(id: "three"),
+        MockApp(id: "four"),
+        MockApp(id: "five"),
+        MockApp(id: "six")
     ]
 
     var body: some View {
-        ZStack {
-            Color(uiColor: .systemBackground)
-                .ignoresSafeArea()
-
-            VStack(spacing: 0) {
-                if !accessibilityReduceMotion && !dynamicTypeSize.isAccessibilitySize {
-                    permissionAnimation()
-                        .frame(maxWidth: 220)
-                        .padding(.horizontal, DesignSystem.Spacing.md)
-                        .padding(.top, DesignSystem.Spacing.md)
-                        .padding(.bottom, DesignSystem.Spacing.lg)
-                        .accessibilityHidden(true)
-                        .task {
-                            await animateAppLocks()
-                        }
+        PermissionScreen(
+            tint: .orange,
+            title: title,
+            description: description,
+            primaryActionTitle: primaryActionTitle,
+            secondaryActionTitle: secondaryActionTitle,
+            isPrimaryActionEnabled: isPrimaryActionEnabled,
+            primaryAction: primaryAction,
+            secondaryAction: secondaryAction
+        ) {
+            permissionAnimation()
+                .task {
+                    await animateAppLocks()
                 }
-
-                permissionContent()
-            }
         }
     }
 
-    private func permissionContent() -> some View {
-        VStack(spacing: DesignSystem.Spacing.md) {
-            Text(title)
-                .font(.title.bold())
-                .multilineTextAlignment(.center)
-
-            Text(description)
-                .font(.callout)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-            
-            AppButton(
-                action: primaryAction,
-            ){
-                Text(primaryActionTitle)
-            }
-            .disabled(!isPrimaryActionEnabled)
-            .padding(.top, DesignSystem.Spacing.md)
-
-            
-            AppButton(
-                variant: .ghost,
-                action: secondaryAction,
-            ){
-                Text(secondaryActionTitle)
-            }
-        }
-    }
 
     private func permissionAnimation() -> some View {
-        let phoneRatio: CGFloat = 390 / 870
-        let phoneCornerRadius: CGFloat = 70
+        VStack(spacing: 0) {
+            LazyVGrid(
+                columns: Array(repeating: GridItem(.flexible()), count: 3),
+                spacing: 20
+            ) {
+                ForEach(mockApps) { app in
+                    let phase = lockPhases[app.id] ?? .idle
 
-        return GeometryReader { geometry in
-            let size = geometry.size
-            let scale = min(size.width / 390, size.height / 870)
-
-            ZStack {
-                RoundedRectangle(cornerRadius: phoneCornerRadius * scale)
-                    .fill(Color(uiColor: .systemBackground))
-
-                VStack(spacing: 0) {
-
-                    LazyVGrid(
-                        columns: Array(repeating: GridItem(.flexible()), count: 3),
-                        spacing: 20 * scale
-                    ) {
-                        ForEach(mockApps) { app in
-                            let isLocked = lockedIcons.contains(app.id)
-
-                            ZStack {
-                                Image(systemName: app.icon)
-                                    .opacity(isLocked ? 0 : 1)
-
-                                Image(systemName: "lock.fill")
-                                    .opacity(isLocked ? 1 : 0)
-                            }
-                            .font(.system(size: 32 * scale, weight: .semibold))
-                            .foregroundStyle(.white.opacity(isLocked ? 0.5 : 1))
-                            .frame(width: 78 * scale, height: 78 * scale)
-                            .background(
-                                app.color.opacity(isLocked ? 0.18 : 0.85),
-                                in: RoundedRectangle(cornerRadius: 20 * scale)
-                            )
-                            .scaleEffect(isLocked ? 1.08 : 1)
-                            .animation(.easeInOut(duration: 0.9), value: isLocked)
+                    ZStack {
+                        if phase != .idle {
+                            Image(systemName: phase == .unlocking ? "lock.open.fill" : "lock.fill")
+                                .font(.system(size: 32, weight: .semibold))
+                                .foregroundStyle(.gray.opacity(0.5))
                         }
                     }
-                    .padding(.horizontal, 30 * scale)
-                    .padding(.top, 100 * scale)
-
-                    Spacer()
+                    .frame(width: 78, height: 78)
+                    .background(
+                        .gray.opacity(0.15),
+                        in: RoundedRectangle(cornerRadius: 20)
+                    )
+                    .scaleEffect(
+                        phase == .clicking ? 0.82 : phase == .unlocking ? 0.68 : phase == .locked ? 1.08 : 1
+                    )
+                    .rotationEffect(.degrees(phase == .clicking ? -8 : phase == .unlocking ? 8 : 0))
+                    .animation(.spring(response: 0.22, dampingFraction: 0.55), value: phase)
                 }
+            }
+            .padding(.horizontal, 30)
+            .padding(.top, 100)
 
-                dynamicIsland(scale: scale)
-            }
-            .clipShape(RoundedRectangle(cornerRadius: phoneCornerRadius * scale))
-            .overlay {
-                RoundedRectangle(cornerRadius: phoneCornerRadius * scale)
-                    .stroke(.primary, lineWidth: max(1, 2 * scale))
-            }
+            Spacer()
         }
-        .aspectRatio(phoneRatio, contentMode: .fit)
     }
 
     private func animateAppLocks() async {
         while !Task.isCancelled {
-            for app in mockApps.filter(\.isLockable).shuffled() {
+            for app in mockApps.shuffled() {
                 guard !Task.isCancelled else { return }
 
                 let delay = UInt64.random(in: 450_000_000...950_000_000)
@@ -158,8 +97,16 @@ struct AppBlockingPermission: View {
 
                 guard !Task.isCancelled else { return }
 
-                withAnimation(.easeInOut(duration: 0.9)) {
-                    lockedIcons.insert(app.id)
+                withAnimation(.spring(response: 0.22, dampingFraction: 0.55)) {
+                    lockPhases[app.id] = .clicking
+                }
+
+                try? await Task.sleep(nanoseconds: 220_000_000)
+
+                guard !Task.isCancelled else { return }
+
+                withAnimation(.spring(response: 0.35, dampingFraction: 0.65)) {
+                    lockPhases[app.id] = .locked
                 }
             }
 
@@ -167,7 +114,7 @@ struct AppBlockingPermission: View {
 
             guard !Task.isCancelled else { return }
 
-            for app in mockApps.filter(\.isLockable).shuffled() {
+            for app in mockApps.shuffled() {
                 guard !Task.isCancelled else { return }
 
                 let delay = UInt64.random(in: 450_000_000...950_000_000)
@@ -175,8 +122,16 @@ struct AppBlockingPermission: View {
 
                 guard !Task.isCancelled else { return }
 
-                withAnimation(.easeInOut(duration: 0.9)) {
-                    lockedIcons.remove(app.id)
+                withAnimation(.spring(response: 0.25, dampingFraction: 0.6)) {
+                    lockPhases[app.id] = .unlocking
+                }
+
+                try? await Task.sleep(nanoseconds: 300_000_000)
+
+                guard !Task.isCancelled else { return }
+
+                withAnimation(.easeOut(duration: 0.25)) {
+                    lockPhases[app.id] = .idle
                 }
             }
 
@@ -184,16 +139,13 @@ struct AppBlockingPermission: View {
         }
     }
 
-    private func dynamicIsland(scale: CGFloat) -> some View {
-        VStack {
-            Capsule()
-                .fill(.black)
-                .frame(width: 120 * scale, height: 36 * scale)
-                .padding(.top, 11 * scale)
-
-            Spacer()
-        }
+    private enum LockPhase: Equatable {
+        case idle
+        case clicking
+        case locked
+        case unlocking
     }
+
 }
 
 #Preview {
