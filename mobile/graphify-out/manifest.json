@@ -1,0 +1,137 @@
+{
+  "loop/App/AppView.swift": {
+    "mtime": 1789124030.755048,
+    "ast_hash": "1eae263b9061609642ff72fe6d8c4b71",
+    "semantic_hash": "1eae263b9061609642ff72fe6d8c4b71"
+  },
+  "loop/App/Loop.swift": {
+    "mtime": 1789040923.5465024,
+    "ast_hash": "f953258f71a4454f11f92b66f5aa94dd",
+    "semantic_hash": "f953258f71a4454f11f92b66f5aa94dd"
+  },
+  "loop/App/Providers/AppProvider.swift": {
+    "mtime": 1789040923.5466504,
+    "ast_hash": "bf8957852562d0571f523410b908bf1f",
+    "semantic_hash": "bf8957852562d0571f523410b908bf1f"
+  },
+  "loop/Features/Alarm/Models/Alarm.swift": {
+    "mtime": 1789461873.3434079,
+    "ast_hash": "b43bff5c79f5ce6a983be9163d07a25d",
+    "semantic_hash": "b43bff5c79f5ce6a983be9163d07a25d"
+  },
+  "loop/Features/Alarm/Services/Scheduler.swift": {
+    "mtime": 1789465211.4274347,
+    "ast_hash": "265d7868ada665858b95ca169be5788d",
+    "semantic_hash": "265d7868ada665858b95ca169be5788d"
+  },
+  "loop/Features/Alarm/Views/AlarmPermission.swift": {
+    "mtime": 1789466505.292213,
+    "ast_hash": "d8a7e353166a0fae7ffcb73a5ec65a77",
+    "semantic_hash": "d8a7e353166a0fae7ffcb73a5ec65a77"
+  },
+  "loop/Features/Alarm/Views/Repeat.swift": {
+    "mtime": 1789465211.426066,
+    "ast_hash": "338e45fae00fedf75c38d99d935db5cb",
+    "semantic_hash": "338e45fae00fedf75c38d99d935db5cb"
+  },
+  "loop/Features/AppBlocking/Port/AppBlockingPort.swift": {
+    "mtime": 1789040923.5476673,
+    "ast_hash": "12807083a643e70a6b6a0ad5b2befe0c",
+    "semantic_hash": "12807083a643e70a6b6a0ad5b2befe0c"
+  },
+  "loop/Features/AppBlocking/Services/AppBlockingService.swift": {
+    "mtime": 1789040923.5480282,
+    "ast_hash": "d544ea41ff947827da8cccd24d75cf9a",
+    "semantic_hash": "d544ea41ff947827da8cccd24d75cf9a"
+  },
+  "loop/Features/AppBlocking/Services/_AppBlockingService.swift": {
+    "mtime": 1789040923.5482514,
+    "ast_hash": "fddec042f037622075d27054516be4cd",
+    "semantic_hash": "fddec042f037622075d27054516be4cd"
+  },
+  "loop/Features/AppBlocking/Views/AppBlocking.swift": {
+    "mtime": 1789465529.545782,
+    "ast_hash": "321b5bdd2812b8f35d180d28bd460311",
+    "semantic_hash": "321b5bdd2812b8f35d180d28bd460311"
+  },
+  "loop/Features/AppBlocking/Views/AppBlockingPermission.swift": {
+    "mtime": 1789465678.4680402,
+    "ast_hash": "d2af88f135480f163176e293460a06d9",
+    "semantic_hash": "d2af88f135480f163176e293460a06d9"
+  },
+  "loop/Features/Auth/Providers/AuthProvider.swift": {
+    "mtime": 1789040923.5498366,
+    "ast_hash": "0efacd603c27e8818aecbcdcde1633f4",
+    "semantic_hash": "0efacd603c27e8818aecbcdcde1633f4"
+  },
+  "loop/Features/Auth/Views/Auth.swift": {
+    "mtime": 1789465044.3358042,
+    "ast_hash": "fad3b0b263ae7975ca4f8d61058e8a3d",
+    "semantic_hash": "fad3b0b263ae7975ca4f8d61058e8a3d"
+  },
+  "loop/Features/Auth/Views/Login.swift": {
+    "mtime": 1789465211.4281259,
+    "ast_hash": "4df51865f618ed6aafd4536d8028b29b",
+    "semantic_hash": "4df51865f618ed6aafd4536d8028b29b"
+  },
+  "loop/Features/Auth/Views/OTP.swift": {
+    "mtime": 1789465211.4283493,
+    "ast_hash": "89d65dcbaaaacd02ea1f0e64d02af5fd",
+    "semantic_hash": "89d65dcbaaaacd02ea1f0e64d02af5fd"
+  },
+  "loop/Features/Auth/Views/Register.swift": {
+    "mtime": 1789465211.428623,
+    "ast_hash": "8b92514a68c91834ff458d4d0b2c79f1",
+    "semantic_hash": "8b92514a68c91834ff458d4d0b2c79f1"
+  },
+  "loop/Features/Home/Views/Home.swift": {
+    "mtime": 1789465211.4288294,
+    "ast_hash": "f4b48fbcb70ab375e7dbd8ba972bbc30",
+    "semantic_hash": "f4b48fbcb70ab375e7dbd8ba972bbc30"
+  },
+  "loop/Features/Onboarding/Models/Onboarding.swift": {
+    "mtime": 1789460699.9410233,
+    "ast_hash": "351ff607f7ee605b1840816466b41c06",
+    "semantic_hash": "351ff607f7ee605b1840816466b41c06"
+  },
+  "loop/Features/Onboarding/Providers/OnboardingProvider.swift": {
+    "mtime": 1789463962.336626,
+    "ast_hash": "6736fcb0bc377f288cc8413b29849168",
+    "semantic_hash": "6736fcb0bc377f288cc8413b29849168"
+  },
+  "loop/Features/Onboarding/Views/OnboardingFlow.swift": {
+    "mtime": 1789466437.6577578,
+    "ast_hash": "de98b494cbe247cf858736e361cbaa44",
+    "semantic_hash": "de98b494cbe247cf858736e361cbaa44"
+  },
+  "loop/Features/Onboarding/Views/Steps/AlarmEditor.swift": {
+    "mtime": 1789466312.5759726,
+    "ast_hash": "cae6285e12d0176a1114bacd975afc4e",
+    "semantic_hash": "cae6285e12d0176a1114bacd975afc4e"
+  },
+  "loop/Features/Onboarding/Views/Steps/Questions.swift": {
+    "mtime": 1789465044.333112,
+    "ast_hash": "42ef7478f178f670106a57a055774f75",
+    "semantic_hash": "42ef7478f178f670106a57a055774f75"
+  },
+  "loop/Features/Onboarding/Views/Steps/Tasks.swift": {
+    "mtime": 1789465044.3340602,
+    "ast_hash": "111453adb23e7ad19d1d81ffe67f9686",
+    "semantic_hash": "111453adb23e7ad19d1d81ffe67f9686"
+  },
+  "loop/Features/Settings/Views/Settings.swift": {
+    "mtime": 1789465211.4290955,
+    "ast_hash": "4069d030c7dff0afbc0c01498a11f5a1",
+    "semantic_hash": "4069d030c7dff0afbc0c01498a11f5a1"
+  },
+  "loop/Features/Splash/Views/Splash.swift": {
+    "mtime": 1789465293.9365108,
+    "ast_hash": "107b13eaf88d4bdc5715f7f3ed11b068",
+    "semantic_hash": "107b13eaf88d4bdc5715f7f3ed11b068"
+  },
+  "opencode.json": {
+    "mtime": 1789040930.4162803,
+    "ast_hash": "37ff6851472c5a1eddb9b8cc17e1e5d7",
+    "semantic_hash": "37ff6851472c5a1eddb9b8cc17e1e5d7"
+  }
+}

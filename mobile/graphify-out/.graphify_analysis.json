@@ -1,0 +1,473 @@
+{
+  "communities": {
+    "0": [
+      "app",
+      "composablearchitecture",
+      "familycontrols",
+      "loop_app_appview",
+      "loop_app_appview_appview",
+      "loop_app_appview_swift_storeof",
+      "loop_app_loop",
+      "loop_app_loop_loopapp",
+      "loop_app_loop_loopapp_body",
+      "loop_app_providers_appprovider",
+      "loop_app_providers_appprovider_action",
+      "loop_app_providers_appprovider_action_auth",
+      "loop_app_providers_appprovider_action_onboarding",
+      "loop_app_providers_appprovider_action_splashfinished",
+      "loop_app_providers_appprovider_appprovider",
+      "loop_app_providers_appprovider_appprovider_body",
+      "loop_app_providers_appprovider_route",
+      "loop_app_providers_appprovider_route_auth",
+      "loop_app_providers_appprovider_route_home",
+      "loop_app_providers_appprovider_route_onboarding",
+      "loop_app_providers_appprovider_route_splash",
+      "loop_app_providers_appprovider_state",
+      "loop_app_providers_appprovider_swift_reducer",
+      "loop_features_appblocking_services_appblockingservice_swift_loop_features_appblocking_services_appblockingservice_f6e0f7",
+      "loop_features_appblocking_views_appblocking",
+      "loop_features_appblocking_views_appblockingpermission",
+      "loop_features_auth_providers_authprovider",
+      "loop_features_auth_providers_authprovider_authprovider",
+      "loop_features_auth_providers_authprovider_authprovider_body",
+      "loop_features_auth_providers_authprovider_swift_reducer",
+      "loop_features_auth_views_auth",
+      "loop_features_auth_views_auth_authview",
+      "loop_features_auth_views_auth_authview_body",
+      "loop_features_auth_views_auth_swift_storeof",
+      "loop_features_auth_views_login",
+      "loop_features_auth_views_login_loginview",
+      "loop_features_auth_views_login_loginview_body",
+      "loop_features_auth_views_login_swift_storeof",
+      "loop_features_auth_views_otp",
+      "loop_features_auth_views_otp_otpview",
+      "loop_features_auth_views_otp_otpview_body",
+      "loop_features_auth_views_otp_swift_storeof",
+      "loop_features_auth_views_register",
+      "loop_features_auth_views_register_registerview",
+      "loop_features_auth_views_register_registerview_body",
+      "loop_features_auth_views_register_swift_storeof",
+      "loop_features_onboarding_views_onboardingflow",
+      "scene",
+      "swiftui"
+    ],
+    "1": [
+      "loop_features_onboarding_providers_onboardingprovider_action",
+      "loop_features_onboarding_providers_onboardingprovider_action_alarmauthorizationchecked",
+      "loop_features_onboarding_providers_onboardingprovider_action_alarmauthorizationfailed",
+      "loop_features_onboarding_providers_onboardingprovider_action_alarmauthorizationrequested",
+      "loop_features_onboarding_providers_onboardingprovider_action_alarmauthorizationsucceeded",
+      "loop_features_onboarding_providers_onboardingprovider_action_alarmpermissionskipped",
+      "loop_features_onboarding_providers_onboardingprovider_action_alarmselected",
+      "loop_features_onboarding_providers_onboardingprovider_action_alarmsetfailed",
+      "loop_features_onboarding_providers_onboardingprovider_action_alarmsetsucceeded",
+      "loop_features_onboarding_providers_onboardingprovider_action_alarmsettapped",
+      "loop_features_onboarding_providers_onboardingprovider_action_appsauthorizationfailed",
+      "loop_features_onboarding_providers_onboardingprovider_action_appsauthorizationrequested",
+      "loop_features_onboarding_providers_onboardingprovider_action_appsauthorizationsucceeded",
+      "loop_features_onboarding_providers_onboardingprovider_action_appspermissionskipped",
+      "loop_features_onboarding_providers_onboardingprovider_action_appsselected",
+      "loop_features_onboarding_providers_onboardingprovider_action_appsselectionchanged",
+      "loop_features_onboarding_providers_onboardingprovider_action_appsselectionsavefailed",
+      "loop_features_onboarding_providers_onboardingprovider_action_backtapped",
+      "loop_features_onboarding_providers_onboardingprovider_action_delegate",
+      "loop_features_onboarding_providers_onboardingprovider_action_finishtapped",
+      "loop_features_onboarding_providers_onboardingprovider_action_multipleanswertoggled",
+      "loop_features_onboarding_providers_onboardingprovider_action_nexttapped",
+      "loop_features_onboarding_providers_onboardingprovider_action_singleanswerselected",
+      "loop_features_onboarding_providers_onboardingprovider_action_taskadded",
+      "loop_features_onboarding_providers_onboardingprovider_action_timeanswerselected",
+      "loop_features_onboarding_providers_onboardingprovider_delegate",
+      "loop_features_onboarding_providers_onboardingprovider_delegate_completed",
+      "loop_features_onboarding_providers_onboardingprovider_swift_bool",
+      "loop_features_onboarding_providers_onboardingprovider_swift_date",
+      "loop_features_onboarding_providers_onboardingprovider_swift_delegate",
+      "loop_features_onboarding_providers_onboardingprovider_swift_string",
+      "loop_features_onboarding_providers_onboardingprovider_swift_uuid"
+    ],
+    "2": [
+      "codable",
+      "data",
+      "equatable",
+      "identifiable",
+      "loop_features_onboarding_models_onboarding",
+      "loop_features_onboarding_models_onboarding_appselection",
+      "loop_features_onboarding_models_onboarding_onboardingdraft",
+      "loop_features_onboarding_models_onboarding_onboardinglayout",
+      "loop_features_onboarding_models_onboarding_question",
+      "loop_features_onboarding_models_onboarding_questionanswer",
+      "loop_features_onboarding_models_onboarding_questionanswer_multiple",
+      "loop_features_onboarding_models_onboarding_questionanswer_single",
+      "loop_features_onboarding_models_onboarding_questionanswer_time",
+      "loop_features_onboarding_models_onboarding_questionbody",
+      "loop_features_onboarding_models_onboarding_questionbody_multiple",
+      "loop_features_onboarding_models_onboarding_questionbody_single",
+      "loop_features_onboarding_models_onboarding_questionbody_time",
+      "loop_features_onboarding_models_onboarding_swift_cgfloat",
+      "loop_features_onboarding_models_onboarding_swift_date",
+      "loop_features_onboarding_models_onboarding_swift_set",
+      "loop_features_onboarding_models_onboarding_swift_string",
+      "loop_features_onboarding_models_onboarding_swift_uuid",
+      "loop_features_onboarding_models_onboarding_taskitem",
+      "loop_features_onboarding_providers_onboardingprovider_appsauthorizationstatus",
+      "loop_features_onboarding_providers_onboardingprovider_appsauthorizationstatus_authorized",
+      "loop_features_onboarding_providers_onboardingprovider_appsauthorizationstatus_denied",
+      "loop_features_onboarding_providers_onboardingprovider_appsauthorizationstatus_requesting",
+      "loop_features_onboarding_providers_onboardingprovider_appsauthorizationstatus_unknown",
+      "loop_features_onboarding_providers_onboardingprovider_state",
+      "sendable"
+    ],
+    "3": [
+      "caseiterable",
+      "foundation",
+      "hashable",
+      "loop_features_alarm_models_alarm",
+      "loop_features_alarm_models_alarm_alarm",
+      "loop_features_alarm_models_alarm_alarm_repeatsummary",
+      "loop_features_alarm_models_alarm_alarmsound",
+      "loop_features_alarm_models_alarm_alarmsound_birds",
+      "loop_features_alarm_models_alarm_alarmsound_default",
+      "loop_features_alarm_models_alarm_alarmsound_id",
+      "loop_features_alarm_models_alarm_alarmsound_radar",
+      "loop_features_alarm_models_alarm_alarmsound_title",
+      "loop_features_alarm_models_alarm_alarmweekday",
+      "loop_features_alarm_models_alarm_alarmweekday_friday",
+      "loop_features_alarm_models_alarm_alarmweekday_id",
+      "loop_features_alarm_models_alarm_alarmweekday_monday",
+      "loop_features_alarm_models_alarm_alarmweekday_saturday",
+      "loop_features_alarm_models_alarm_alarmweekday_sunday",
+      "loop_features_alarm_models_alarm_alarmweekday_thursday",
+      "loop_features_alarm_models_alarm_alarmweekday_title",
+      "loop_features_alarm_models_alarm_alarmweekday_tuesday",
+      "loop_features_alarm_models_alarm_alarmweekday_wednesday",
+      "loop_features_alarm_models_alarm_swift_bool",
+      "loop_features_alarm_models_alarm_swift_date",
+      "loop_features_alarm_models_alarm_swift_set",
+      "loop_features_alarm_models_alarm_swift_uuid",
+      "self",
+      "string"
+    ],
+    "4": [
+      "familyactivityselection",
+      "loop_features_appblocking_views_appblocking_appblockingview",
+      "loop_features_appblocking_views_appblocking_appblockingview_body",
+      "loop_features_appblocking_views_appblocking_appblockingview_init",
+      "loop_features_appblocking_views_appblocking_appblockingview_requestauthorization",
+      "loop_features_appblocking_views_appblocking_swift_storeof",
+      "loop_features_appblocking_views_appblocking_swift_string",
+      "loop_features_onboarding_providers_onboardingprovider_alarmauthorizationstatus",
+      "loop_features_onboarding_providers_onboardingprovider_alarmauthorizationstatus_authorized",
+      "loop_features_onboarding_providers_onboardingprovider_alarmauthorizationstatus_denied",
+      "loop_features_onboarding_providers_onboardingprovider_alarmauthorizationstatus_requesting",
+      "loop_features_onboarding_providers_onboardingprovider_alarmauthorizationstatus_unknown",
+      "loop_features_onboarding_providers_onboardingprovider_onboardingprovider",
+      "loop_features_onboarding_providers_onboardingprovider_swift_reducer",
+      "loop_features_onboarding_views_onboardingflow_onboardingview_body",
+      "loop_features_onboarding_views_steps_questions",
+      "loop_features_onboarding_views_steps_questions_questionsview",
+      "loop_features_onboarding_views_steps_questions_questionsview_body",
+      "loop_features_onboarding_views_steps_questions_questionsview_isselected",
+      "loop_features_onboarding_views_steps_questions_swift_bool",
+      "loop_features_onboarding_views_steps_questions_swift_storeof",
+      "loop_features_onboarding_views_steps_questions_swift_string",
+      "loop_features_onboarding_views_steps_tasks",
+      "loop_features_onboarding_views_steps_tasks_tasksview",
+      "loop_features_onboarding_views_steps_tasks_tasksview_body"
+    ],
+    "5": [
+      "loop_features_alarm_views_alarmpermission",
+      "loop_features_alarm_views_alarmpermission_alarmanimationvalues",
+      "loop_features_alarm_views_alarmpermission_alarmmockscreen",
+      "loop_features_alarm_views_alarmpermission_alarmmockscreen_alarmheader",
+      "loop_features_alarm_views_alarmpermission_alarmmockscreen_body",
+      "loop_features_alarm_views_alarmpermission_alarmmockscreen_slidetostop",
+      "loop_features_alarm_views_alarmpermission_alarmmockscreen_snoozebutton",
+      "loop_features_alarm_views_alarmpermission_alarmpermission",
+      "loop_features_alarm_views_alarmpermission_alarmpermission_body",
+      "loop_features_alarm_views_alarmpermission_alarmpermission_permissionanimation",
+      "loop_features_alarm_views_alarmpermission_alarmpermission_permissioncontent",
+      "loop_features_alarm_views_alarmpermission_swift_bool",
+      "loop_features_alarm_views_alarmpermission_swift_cgfloat",
+      "loop_features_alarm_views_alarmpermission_swift_color",
+      "loop_features_alarm_views_alarmpermission_swift_string",
+      "loop_features_alarm_views_alarmpermission_swift_void",
+      "loop_features_settings_views_settings",
+      "loop_features_settings_views_settings_settingsview",
+      "loop_features_settings_views_settings_settingsview_body",
+      "view"
+    ],
+    "6": [
+      "loop_app_appview_appview_body",
+      "loop_features_home_views_home",
+      "loop_features_home_views_home_homeview",
+      "loop_features_home_views_home_homeview_body",
+      "loop_features_onboarding_views_onboardingflow_onboardingview",
+      "loop_features_onboarding_views_onboardingflow_onboardingview_adaptivecolor",
+      "loop_features_onboarding_views_onboardingflow_onboardingview_bottombar",
+      "loop_features_onboarding_views_onboardingflow_onboardingview_bottombuttontitle",
+      "loop_features_onboarding_views_onboardingflow_onboardingview_cancontinue",
+      "loop_features_onboarding_views_onboardingflow_onboardingview_shouldshowbottombar",
+      "loop_features_onboarding_views_onboardingflow_onboardingview_topbar",
+      "loop_features_onboarding_views_onboardingflow_swift_bool",
+      "loop_features_onboarding_views_onboardingflow_swift_color",
+      "loop_features_onboarding_views_onboardingflow_swift_storeof",
+      "loop_features_onboarding_views_onboardingflow_swift_string",
+      "loop_features_splash_views_splash",
+      "loop_features_splash_views_splash_splashview",
+      "loop_features_splash_views_splash_splashview_body",
+      "loop_features_splash_views_splash_swift_void"
+    ],
+    "7": [
+      "loop_features_auth_providers_authprovider_action",
+      "loop_features_auth_providers_authprovider_action_delegate",
+      "loop_features_auth_providers_authprovider_action_emailchanged",
+      "loop_features_auth_providers_authprovider_action_logintapped",
+      "loop_features_auth_providers_authprovider_action_otpchanged",
+      "loop_features_auth_providers_authprovider_action_otpsubmitted",
+      "loop_features_auth_providers_authprovider_action_passwordchanged",
+      "loop_features_auth_providers_authprovider_action_registertapped",
+      "loop_features_auth_providers_authprovider_action_showlogin",
+      "loop_features_auth_providers_authprovider_action_showregister",
+      "loop_features_auth_providers_authprovider_delegate",
+      "loop_features_auth_providers_authprovider_delegate_authenticated",
+      "loop_features_auth_providers_authprovider_screen",
+      "loop_features_auth_providers_authprovider_screen_login",
+      "loop_features_auth_providers_authprovider_screen_otp",
+      "loop_features_auth_providers_authprovider_screen_register",
+      "loop_features_auth_providers_authprovider_state",
+      "loop_features_auth_providers_authprovider_swift_delegate",
+      "loop_features_auth_providers_authprovider_swift_string"
+    ],
+    "8": [
+      "activitykit",
+      "alarmmetadata",
+      "loop_features_alarm_services_scheduler",
+      "loop_features_alarm_services_scheduler_alarmkitmetadata",
+      "loop_features_alarm_services_scheduler_alarmscheduler",
+      "loop_features_alarm_services_scheduler_alarmscheduler_cancelalarm",
+      "loop_features_alarm_services_scheduler_alarmscheduler_setalarm",
+      "loop_features_alarm_services_scheduler_swift_date",
+      "loop_features_alarm_services_scheduler_swift_uuid",
+      "loop_features_onboarding_providers_onboardingprovider_onboardingprovider_body",
+      "loop_features_onboarding_providers_onboardingprovider_step",
+      "loop_features_onboarding_providers_onboardingprovider_step_alarm",
+      "loop_features_onboarding_providers_onboardingprovider_step_apps",
+      "loop_features_onboarding_providers_onboardingprovider_step_questions",
+      "loop_features_onboarding_providers_onboardingprovider_step_summary",
+      "loop_features_onboarding_providers_onboardingprovider_step_tasks"
+    ],
+    "9": [
+      "alarmkit",
+      "loop_features_alarm_views_repeat",
+      "loop_features_alarm_views_repeat_alarmrepeatview",
+      "loop_features_alarm_views_repeat_alarmrepeatview_body",
+      "loop_features_alarm_views_repeat_swift_set",
+      "loop_features_onboarding_providers_onboardingprovider",
+      "loop_features_onboarding_views_steps_alarmeditor",
+      "loop_features_onboarding_views_steps_alarmeditor_alarmview",
+      "loop_features_onboarding_views_steps_alarmeditor_alarmview_alarmcontent",
+      "loop_features_onboarding_views_steps_alarmeditor_alarmview_body",
+      "loop_features_onboarding_views_steps_alarmeditor_alarmview_permissiondescription",
+      "loop_features_onboarding_views_steps_alarmeditor_alarmview_refreshauthorizationstate",
+      "loop_features_onboarding_views_steps_alarmeditor_swift_storeof",
+      "loop_features_onboarding_views_steps_alarmeditor_swift_string",
+      "loop_features_onboarding_views_steps_alarmeditor_swift_void",
+      "uikit"
+    ],
+    "10": [
+      "loop_features_appblocking_views_appblockingpermission_appblockingpermission",
+      "loop_features_appblocking_views_appblockingpermission_appblockingpermission_animateapplocks",
+      "loop_features_appblocking_views_appblockingpermission_appblockingpermission_body",
+      "loop_features_appblocking_views_appblockingpermission_appblockingpermission_dynamicisland",
+      "loop_features_appblocking_views_appblockingpermission_appblockingpermission_permissionanimation",
+      "loop_features_appblocking_views_appblockingpermission_appblockingpermission_permissioncontent",
+      "loop_features_appblocking_views_appblockingpermission_mockapp",
+      "loop_features_appblocking_views_appblockingpermission_swift_bool",
+      "loop_features_appblocking_views_appblockingpermission_swift_cgfloat",
+      "loop_features_appblocking_views_appblockingpermission_swift_color",
+      "loop_features_appblocking_views_appblockingpermission_swift_set",
+      "loop_features_appblocking_views_appblockingpermission_swift_string",
+      "loop_features_appblocking_views_appblockingpermission_swift_void"
+    ],
+    "11": [
+      "loop_features_appblocking_port_appblockingport",
+      "loop_features_appblocking_port_appblockingport_appblockingport",
+      "loop_features_appblocking_services_appblockingservice_swift_bool_2adbd8",
+      "loop_features_appblocking_services_appblockingservice_swift_bool_f6e0f7",
+      "loop_features_appblocking_services_appblockingservice_swift_loop_features_appblocking_services_appblockingservice_2adbd8",
+      "loop_features_appblocking_services_appblockingservice_swift_loop_features_appblocking_services_appblockingservice_appblockingservice_2adbd8",
+      "loop_features_appblocking_services_appblockingservice_swift_loop_features_appblocking_services_appblockingservice_appblockingservice_f6e0f7",
+      "loop_features_appblocking_services_appblockingservice_swift_loop_features_appblocking_services_appblockingservice_appblockingservice_requestauthorization_2adbd8",
+      "loop_features_appblocking_services_appblockingservice_swift_loop_features_appblocking_services_appblockingservice_appblockingservice_requestauthorization_f6e0f7",
+      "loop_features_appblocking_services_appblockingservice_swift_loop_features_appblocking_services_appblockingservice_appblockingservice_saveselection_2adbd8",
+      "loop_features_appblocking_services_appblockingservice_swift_loop_features_appblocking_services_appblockingservice_appblockingservice_saveselection_f6e0f7"
+    ],
+    "12": [
+      "opencode",
+      "opencode_instructions",
+      "opencode_schema",
+      "ref_agents_md"
+    ]
+  },
+  "cohesion": {
+    "0": 0.05697278911564626,
+    "1": 0.0625,
+    "2": 0.12873563218390804,
+    "3": 0.08994708994708994,
+    "4": 0.1,
+    "5": 0.19473684210526315,
+    "6": 0.10526315789473684,
+    "7": 0.10526315789473684,
+    "8": 0.15,
+    "9": 0.13333333333333333,
+    "10": 0.24358974358974358,
+    "11": 0.18181818181818182,
+    "12": 0.5
+  },
+  "gods": [
+    {
+      "id": "loop_features_onboarding_providers_onboardingprovider_action",
+      "label": "Action",
+      "degree": 35
+    },
+    {
+      "id": "loop_features_alarm_models_alarm_alarmweekday",
+      "label": "AlarmWeekday",
+      "degree": 18
+    },
+    {
+      "id": "loop_features_alarm_models_alarm_alarm",
+      "label": "Alarm",
+      "degree": 15
+    },
+    {
+      "id": "loop_features_onboarding_views_onboardingflow_onboardingview",
+      "label": "OnboardingView",
+      "degree": 15
+    },
+    {
+      "id": "loop_features_appblocking_views_appblockingpermission_appblockingpermission",
+      "label": "AppBlockingPermission",
+      "degree": 14
+    },
+    {
+      "id": "loop_features_onboarding_providers_onboardingprovider_onboardingprovider",
+      "label": "OnboardingProvider",
+      "degree": 14
+    },
+    {
+      "id": "loop_features_auth_providers_authprovider_action",
+      "label": "Action",
+      "degree": 14
+    },
+    {
+      "id": "loop_features_alarm_models_alarm_alarmsound",
+      "label": "AlarmSound",
+      "degree": 13
+    },
+    {
+      "id": "composablearchitecture",
+      "label": "ComposableArchitecture",
+      "degree": 13
+    },
+    {
+      "id": "loop_features_onboarding_views_steps_alarmeditor_alarmview",
+      "label": "AlarmView",
+      "degree": 12
+    }
+  ],
+  "surprises": [
+    {
+      "source": ".body",
+      "target": "AuthView",
+      "source_files": [
+        "loop/App/AppView.swift",
+        "loop/Features/Auth/Views/Auth.swift"
+      ],
+      "confidence": "INFERRED",
+      "relation": "calls",
+      "why": "inferred connection - not explicitly stated in source; bridges separate communities"
+    },
+    {
+      "source": ".body",
+      "target": "AppBlockingPermission",
+      "source_files": [
+        "loop/Features/AppBlocking/Views/AppBlocking.swift",
+        "loop/Features/AppBlocking/Views/AppBlockingPermission.swift"
+      ],
+      "confidence": "INFERRED",
+      "relation": "calls",
+      "why": "inferred connection - not explicitly stated in source; bridges separate communities"
+    },
+    {
+      "source": ".body",
+      "target": "AppSelection",
+      "source_files": [
+        "loop/Features/AppBlocking/Views/AppBlocking.swift",
+        "loop/Features/Onboarding/Models/Onboarding.swift"
+      ],
+      "confidence": "INFERRED",
+      "relation": "calls",
+      "why": "inferred connection - not explicitly stated in source; bridges separate communities"
+    },
+    {
+      "source": ".body",
+      "target": "AlarmPermission",
+      "source_files": [
+        "loop/Features/Onboarding/Views/Steps/AlarmEditor.swift",
+        "loop/Features/Alarm/Views/AlarmPermission.swift"
+      ],
+      "confidence": "INFERRED",
+      "relation": "calls",
+      "why": "inferred connection - not explicitly stated in source; bridges separate communities"
+    },
+    {
+      "source": ".alarmContent",
+      "target": "AlarmRepeatView",
+      "source_files": [
+        "loop/Features/Onboarding/Views/Steps/AlarmEditor.swift",
+        "loop/Features/Alarm/Views/Repeat.swift"
+      ],
+      "confidence": "INFERRED",
+      "relation": "calls",
+      "why": "inferred connection - not explicitly stated in source; peripheral node `.alarmContent` unexpectedly reaches hub `AlarmRepeatView`"
+    }
+  ],
+  "questions": [
+    {
+      "type": "bridge_node",
+      "question": "Why does `OnboardingProvider` connect `OnboardingProvider` to `SwiftUI`, `Action`, `Equatable`, `OnboardingView`, `Step`, `AlarmView`?",
+      "why": "High betweenness centrality (0.227) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `Action` connect `Action` to `Equatable`, `AlarmWeekday`, `OnboardingProvider`?",
+      "why": "High betweenness centrality (0.224) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `Alarm` connect `AlarmWeekday` to `Action`, `Equatable`, `AlarmView`?",
+      "why": "High betweenness centrality (0.162) - this node is a cross-community bridge."
+    },
+    {
+      "type": "isolated_nodes",
+      "question": "What connects `auth`, `onboarding`, `splashFinished` to the rest of the system?",
+      "why": "98 weakly-connected nodes found - possible documentation gaps or missing edges."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `SwiftUI` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.05697278911564626 - nodes in this community are weakly interconnected."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `Action` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.0625 - nodes in this community are weakly interconnected."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `Equatable` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.12873563218390804 - nodes in this community are weakly interconnected."
+    }
+  ]
+}
