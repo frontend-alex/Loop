@@ -2,12 +2,13 @@ FROM golang:1.27.1-alpine3.24 AS build
 
 WORKDIR /app
 
+RUN go install github.com/air-verse/air@latest
+
+COPY go.* ./
+RUN go mod download
+
 COPY . .
-
-RUN go get .
-
-RUN go build -o main .
 
 EXPOSE 8080
 
-CMD ["./main"]
+CMD ["air", "-c", ".air.toml"] 
