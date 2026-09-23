@@ -1,30 +1,32 @@
 name: Backend CI
 
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
+  push:
+    branches: [main]
 
-jobs: 
-  build:
+permissions:
+  contents: read
+
+jobs:
+  backend:
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: apps/server
+
     steps:
-    - name: Checkout code 
-      uses: actions/checkout@v4
-  
-    - name: Set up Go
-      uses: actions/setup-go@v5
-      with:
-         go-version-file: go.mod
-         cache: true
+      - uses: actions/checkout@v4
 
-    # - name: Run Tests
-    #   run: go test -v ./...
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: apps/server/go.mod
+          cache-dependency-path: apps/server/go.sum
 
-    - name: Build API
-      run: go build -o api ./cmd/api
+      - name: Test backend
+        run: go test ./...
 
-    - name: Build Docker image
-      run: docker build -t go-server .
+      - name: Build backend
+        run: go build -o /tmp/api ./cmd/api
