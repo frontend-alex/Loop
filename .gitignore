@@ -1,4 +1,5 @@
-/graphify-out
+/graphify-out/
+**/graphify-out/
 /apps/server/.env
 /apps/server/tmp
 /apps/server/bin
