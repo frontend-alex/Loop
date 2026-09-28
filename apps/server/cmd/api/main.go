@@ -1,33 +1,41 @@
 package main
 
 import (
-	"net/http"
+	"log/slog"
+	"os"
 
-	"github.com/gin-gonic/gin"
+	"loop.com/server/internal/app"
+	"loop.com/server/internal/config"
+	"loop.com/server/internal/platform/database"
 )
 
-type album struct {
-	ID     string  `json:"id"`
-	Title  string  `json:"title"`
-	Artist string  `json:"artist"`
-	Price  float64 `json:"price"`
-}
-
-var albums = []album{
-	{ID: "1", Title: "Blue Train", Artist: "Cock", Price: 56.99},
-	{ID: "2", Title: "Jeru", Artist: "Gerry Mulligan", Price: 17.99},
-	{ID: "3", Title: "Sarah Vaughan and Clifford Brown", Artist: "Sarah Vaughan", Price: 39.99},
-}
-
-func getAlbums(c *gin.Context) {
-	c.JSON(http.StatusOK, albums)
-}
-
 func main() {
-	router := gin.Default()
-	router.GET("/albums", getAlbums)
+	cfg, err := config.Load()
+	if err != nil {
+		slog.Error("Configuration failed", "error", err)
+		os.Exit(1)
+	}
 
-	if err := router.Run(":8080"); err != nil {
-		panic(err)
+	logger := slog.New(
+		slog.NewTextHandler(os.Stdout, nil),
+	)
+
+	db, err := database.Open(cfg.Database)
+	if err != nil {
+		logger.Error("Database connection failed", "error", err)
+		os.Exit(1)
+	}
+
+	defer database.Close(db)
+
+	application := app.New(
+		cfg,
+		logger,
+		db,
+	)
+
+	if err := application.Run(); err != nil {
+		logger.Error("Application failed", "error", err)
+		os.Exit(1)
 	}
 }
