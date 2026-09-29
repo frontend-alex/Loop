@@ -10,6 +10,7 @@ import (
 	"syscall"
 
 	"gorm.io/gorm"
+	"loop.com/server/internal/auth"
 	"loop.com/server/internal/config"
 	"loop.com/server/internal/health"
 )
@@ -19,6 +20,7 @@ type Application struct {
 	logger        *slog.Logger
 	db            *gorm.DB
 	healthHandler *health.Handler
+	authHandler   *auth.Handler
 }
 
 func New(
@@ -31,6 +33,7 @@ func New(
 		logger:        logger,
 		db:            db,
 		healthHandler: health.NewHandler(db),
+		authHandler:   auth.NewHandler(),
 	}
 }
 
@@ -55,12 +58,15 @@ func (app *Application) Run() error {
 	}()
 
 	shutdown := make(chan os.Signal, 1)
+
 	signal.Notify(
 		shutdown,
 		syscall.SIGINT,
 		syscall.SIGTERM,
 	)
 
+	// If any error or connection closes I can properly shut down the connection
+	// If the function crashes defer will be the first scheduled output that the function will return
 	defer signal.Stop(shutdown)
 
 	select {

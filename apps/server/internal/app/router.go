@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"loop.com/server/internal/auth"
 	"loop.com/server/internal/health"
 	"loop.com/server/internal/httpx"
 )
@@ -23,9 +24,9 @@ func (app *Application) Router() http.Handler {
 
 	health.RegisterRoutes(r, app.healthHandler)
 
-	// r.Route("/api/v1", func(r chi.Router) {
-
-	// })
+	r.Route("/api/v1", func(r chi.Router) {
+		auth.RegisterRoutes(r, app.authHandler)
+	})
 
 	return r
 }
