@@ -6,6 +6,7 @@ import (
 
 	"loop.com/server/internal/app"
 	"loop.com/server/internal/config"
+	"loop.com/server/internal/platform/auth"
 	"loop.com/server/internal/platform/database"
 )
 
@@ -33,6 +34,8 @@ func main() {
 		logger,
 		db,
 	)
+
+	auth.NewAuth(cfg)
 
 	if err := application.Run(); err != nil {
 		logger.Error("Application failed", "error", err)

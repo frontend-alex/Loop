@@ -11,7 +11,7 @@ type ErrorResponse struct {
 
 type ErrorBody struct {
 	Code    string `json:"code"`
-	Message string `json:"code"`
+	Message string `json:"message"`
 }
 
 func Error(

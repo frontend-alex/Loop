@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"gorm.io/gorm"
+	"loop.com/server/internal/httpx"
 )
 
 type Handler struct {
@@ -17,7 +18,7 @@ func NewHandler(db *gorm.DB) *Handler {
 }
 
 func (h *Handler) Live(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusNoContent)
+	httpx.JSON(w, http.StatusNoContent, nil)
 }
 
 func (h *Handler) Ready(w http.ResponseWriter, r *http.Request) {
@@ -34,5 +35,5 @@ func (h *Handler) Ready(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusNoContent)
+	httpx.JSON(w, http.StatusNoContent, nil)
 }
