@@ -43,8 +43,8 @@ struct AuthProvider {
     @Dependency(AuthClient.self)
     private var authClient
 
-    @Dependency(AuthKeychainClient.self)
-    private var authKeychainClient
+    @Dependency(AuthTokenStore.self)
+    private var authTokenStore
 
     var body: some Reducer<State, Action> {
         Reduce { state, action in
@@ -54,7 +54,7 @@ struct AuthProvider {
 
                 return .run { send in
                     do {
-                        guard let token = try await authKeychainClient.readToken() else {
+                        guard let token = try await authTokenStore.load() else {
                             await send(.delegate(.unauthenticated))
                             return
                         }
@@ -77,7 +77,7 @@ struct AuthProvider {
                 return .run { send in
                     do {
                         let session = try await authClient.authenticate(provider)
-                        try await authKeychainClient.saveToken(session.token)
+                        try await authTokenStore.save(session.token)
 
                         await send(.sessionRestored(session))
                     } catch {
@@ -109,7 +109,7 @@ struct AuthProvider {
                 state.isLoading = false
 
                 return .run { send in
-                    try? await authKeychainClient.deleteToken()
+                    try? await authTokenStore.delete()
                     await send(.delegate(.unauthenticated))
                 }
 

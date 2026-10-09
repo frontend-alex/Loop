@@ -13,6 +13,7 @@ import (
 
 func main() {
 	cfg, err := config.Load()
+	
 	if err != nil {
 		slog.Error("Configuration failed", "error", err)
 		os.Exit(1)
@@ -23,6 +24,7 @@ func main() {
 	)
 
 	db, err := database.Open(cfg.Database)
+
 	if err != nil {
 		logger.Error("Database connection failed", "error", err)
 		os.Exit(1)
