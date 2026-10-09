@@ -14,8 +14,8 @@ struct AppProvider {
         enum Route: Equatable {
             case splash
             case auth
-            case home
             case onboarding
+            case home
         }
 
         var route: Route = .splash
@@ -33,6 +33,7 @@ struct AppProvider {
         Scope(state: \.auth, action: \.auth) {
             AuthProvider()
         }
+
         Scope(state: \.onboarding, action: \.onboarding) {
             OnboardingProvider()
         }
@@ -40,14 +41,20 @@ struct AppProvider {
         Reduce { state, action in
             switch action {
             case .splashFinished:
-                state.route = .auth
-                return .none
+                return .send(.auth(.task))
+
             case .auth(.delegate(.authenticated)):
                 state.route = .onboarding
                 return .none
+
+            case .auth(.delegate(.unauthenticated)):
+                state.route = .auth
+                return .none
+
             case .onboarding(.delegate(.completed)):
                 state.route = .home
                 return .none
+
             case .auth, .onboarding:
                 return .none
             }

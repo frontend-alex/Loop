@@ -11,6 +11,7 @@ type Config struct {
 	HTTP          HTTPConfig
 	Database      DatabaseConfig
 	AuthProviders AuthProvidersConfig
+	JWT           JWTConfig
 }
 
 type HTTPConfig struct {
@@ -47,6 +48,11 @@ type AppleConfig struct {
 	CallbackURL  string
 }
 
+type JWTConfig struct {
+	Secret     string
+	Expiration time.Duration
+}
+
 func Load() (Config, error) {
 	dsn := os.Getenv("DATABASE_URL")
 	if dsn == "" {
@@ -81,6 +87,10 @@ func Load() (Config, error) {
 				ClientSecret: getEnv("APPLE_CLIENT_SECRET", ""),
 				CallbackURL:  getEnv("APPLE_CALLBACK_URL", "http://localhost:8080/auth/apple/callback"),
 			},
+		},
+		JWT: JWTConfig{
+			Secret:     getEnv("JWT_SECRET", "development-only-change-me"),
+			Expiration: 24 * time.Hour,
 		},
 	}, nil
 }

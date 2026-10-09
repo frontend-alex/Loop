@@ -13,6 +13,9 @@ import (
 	"loop.com/server/internal/auth"
 	"loop.com/server/internal/config"
 	"loop.com/server/internal/health"
+	"loop.com/server/internal/user"
+
+	platformAuth "loop.com/server/internal/platform/auth"
 )
 
 type Application struct {
@@ -21,6 +24,8 @@ type Application struct {
 	db            *gorm.DB
 	healthHandler *health.Handler
 	authHandler   *auth.Handler
+	userHandler   *user.Handler
+	jwtService    *platformAuth.JWTService
 }
 
 func New(
@@ -28,13 +33,7 @@ func New(
 	logger *slog.Logger,
 	db *gorm.DB,
 ) *Application {
-	return &Application{
-		config:        config,
-		logger:        logger,
-		db:            db,
-		healthHandler: health.NewHandler(db),
-		authHandler:   auth.NewHandler(),
-	}
+	return newApplication(config, logger, db)
 }
 
 func (app *Application) Run() error {

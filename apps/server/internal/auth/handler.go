@@ -1,20 +1,21 @@
 package auth
 
 import (
-	"fmt"
 	"net/http"
+	"net/url"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/markbates/goth/gothic"
 	"loop.com/server/internal/httpx"
+	"loop.com/server/internal/user"
 )
 
 type Handler struct {
-	// users *users.Service
+	service *Service
 }
 
-func NewHandler() *Handler {
-	return &Handler{}
+func NewHandler(service *Service) *Handler {
+	return &Handler{service: service}
 }
 
 func (h *Handler) Begin(w http.ResponseWriter, r *http.Request) {
@@ -22,7 +23,7 @@ func (h *Handler) Begin(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) Callback(w http.ResponseWriter, r *http.Request) {
-	user, err := gothic.CompleteUserAuth(w, withProvider(r))
+	data, err := gothic.CompleteUserAuth(w, withProvider(r))
 
 	if err != nil {
 		httpx.Error(
@@ -34,27 +35,51 @@ func (h *Handler) Callback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := struct {
-		Provider string `json:"provider"`
-		UserID   string `json:"user_id"`
-		Email    string `json:"email"`
-		Name     string `json:"name"`
-	}{
-		Provider: user.Provider,
-		UserID:   user.UserID,
-		Email:    user.Email,
-		Name:     user.Name,
+	identity := user.AuthIdentity{
+		Provider:       data.Provider,
+		ProviderUserID: data.UserID,
 	}
 
-	httpx.JSON(w, http.StatusAccepted, response)
+	user := user.User{
+		Email:     data.Email,
+		Name:      data.FirstName + data.LastName,
+		AvatarURL: data.AvatarURL,
+	}
 
+	token, err := h.service.Authenticate(
+		r.Context(),
+		identity,
+		user,
+	)
+	if err != nil {
+		httpx.Error(
+			w,
+			http.StatusInternalServerError,
+			"authentication_failed",
+			err.Error(),
+		)
+		return
+	}
+
+	callbackUrl := url.URL{
+		Scheme: "loop",
+		Host:   "auth",
+		Path:   "/callback",
+		RawQuery: url.Values{
+			"token": []string{token},
+		}.Encode(),
+	}
+
+	http.Redirect(
+		w,
+		r,
+		callbackUrl.String(),
+		http.StatusFound,
+	)
 }
 
 func withProvider(r *http.Request) *http.Request {
 	provider := chi.URLParam(r, "provider")
-
-	fmt.Printf(provider)
-
 	request := r.Clone(r.Context())
 	query := request.URL.Query()
 	query.Set("provider", provider)

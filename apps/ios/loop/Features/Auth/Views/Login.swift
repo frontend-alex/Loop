@@ -12,19 +12,19 @@ struct LoginView: View {
     let store: StoreOf<AuthProvider>
 
     var body: some View {
-        VStack() {
+        VStack {
             GeometricBackground()
                 .aspectRatio(2.67 / 4.0, contentMode: .fit)
-            
+
             Spacer(minLength: 0)
-            
+
             VStack(spacing: 16) {
                 AppButton(
                     fullWidth: true,
-                    backgroundColor:DesignSystem.Semantic.foregroundPrimary,
+                    backgroundColor: DesignSystem.Semantic.foregroundPrimary,
                     foregroundColor: DesignSystem.Semantic.foregroundInverse,
                     action: {
-                        store.send(.loginTapped)
+                        store.send(.loginTapped(.apple))
                     }
                 ) {
                     HStack(spacing: 8) {
@@ -32,12 +32,12 @@ struct LoginView: View {
                         Text("Sign in with Apple")
                     }
                 }
-                
+
                 AppButton(
                     variant: .secondary,
                     fullWidth: true,
                     action: {
-                        store.send(.loginTapped)
+                        store.send(.loginTapped(.google))
                     }
                 ) {
                     HStack(spacing: 8) {
@@ -45,7 +45,6 @@ struct LoginView: View {
                         Text("Sign in with Google")
                     }
                 }
-                
             }
             .padding(.horizontal, DesignSystem.Spacing.lg)
         }

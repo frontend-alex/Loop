@@ -18,44 +18,82 @@ struct AuthProvider {
         }
 
         var screen: Screen = .landing
-        var email = ""
-        var password = ""
-        var otp = ""
+        var session: AuthSession?
         var isLoading = false
-        var errorMessge: String?
+        var errorMessage: String?
     }
 
     enum Action: Equatable {
-        case emailChanged(String)
-        case passwordChanged(String)
-        case otpChanged(String)
-
-        case registerTapped
-        case loginTapped
-
+        case task
         case showLogin
         case showRegister
-
+        case loginTapped(AuthProviderKind)
+        case registerTapped(AuthProviderKind)
+        case sessionRestored(AuthSession)
+        case authenticationFailed
+        case logout
         case delegate(Delegate)
 
         enum Delegate: Equatable {
             case authenticated
+            case unauthenticated
         }
     }
+
+    @Dependency(AuthClient.self)
+    private var authClient
+
+    @Dependency(AuthKeychainClient.self)
+    private var authKeychainClient
 
     var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
-            case let .emailChanged(value):
-                state.email = value
-                return .none
+            case .task:
+                state.isLoading = true
 
-            case let .passwordChanged(value):
-                state.password = value
-                return .none
+                return .run { send in
+                    do {
+                        guard let token = try await authKeychainClient.readToken() else {
+                            await send(.delegate(.unauthenticated))
+                            return
+                        }
 
-            case let .otpChanged(value):
-                state.otp = value
+                        await send(
+                            .sessionRestored(
+                                AuthSession(token: token)
+                            )
+                        )
+                    } catch {
+                        await send(.delegate(.unauthenticated))
+                    }
+                }
+
+            case let .loginTapped(provider),
+                 let .registerTapped(provider):
+                state.isLoading = true
+                state.errorMessage = nil
+
+                return .run { send in
+                    do {
+                        let session = try await authClient.authenticate(provider)
+                        try await authKeychainClient.saveToken(session.token)
+
+                        await send(.sessionRestored(session))
+                    } catch {
+                        await send(.authenticationFailed)
+                    }
+                }
+
+            case let .sessionRestored(session):
+                state.session = session
+                state.isLoading = false
+
+                return .send(.delegate(.authenticated))
+
+            case .authenticationFailed:
+                state.isLoading = false
+                state.errorMessage = "Authentication failed."
                 return .none
 
             case .showLogin:
@@ -66,8 +104,14 @@ struct AuthProvider {
                 state.screen = .register
                 return .none
 
-            case .registerTapped, .loginTapped:
-                return .send(.delegate(.authenticated))
+            case .logout:
+                state.session = nil
+                state.isLoading = false
+
+                return .run { send in
+                    try? await authKeychainClient.deleteToken()
+                    await send(.delegate(.unauthenticated))
+                }
 
             case .delegate:
                 return .none
