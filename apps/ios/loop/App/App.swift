@@ -4,19 +4,19 @@
 //
 //  Created by Aleksander Ivanov on 11/08/2026.
 //
-
-import SwiftUI
 import ComposableArchitecture
+import SwiftUI
 
 struct AppView: View {
     let store: StoreOf<AppProvider>
-    
+
     var body: some View {
         switch store.route {
         case .splash:
             SplashView {
                 store.send(.splashFinished)
             }
+
         case .auth:
             AuthView(
                 store: store.scope(
@@ -24,6 +24,7 @@ struct AppView: View {
                     action: \.auth
                 )
             )
+
         case .onboarding:
             OnboardingView(
                 store: store.scope(
@@ -31,8 +32,14 @@ struct AppView: View {
                     action: \.onboarding
                 )
             )
+
         case .home:
-            HomeView()
+            HomeView(
+                store: store.scope(
+                    state: \.auth,
+                    action: \.auth
+                )
+            )
         }
     }
 }

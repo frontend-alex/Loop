@@ -8,6 +8,7 @@ import (
 	"loop.com/server/internal/config"
 	"loop.com/server/internal/platform/auth"
 	"loop.com/server/internal/platform/database"
+	"loop.com/server/internal/user"
 )
 
 func main() {
@@ -28,6 +29,11 @@ func main() {
 	}
 
 	defer database.Close(db)
+
+	if err := db.AutoMigrate(&user.User{}, &user.AuthIdentity{}); err != nil {
+		logger.Error("Database migration failed", "error", err)
+		os.Exit(1)
+	}
 
 	application := app.New(
 		cfg,
