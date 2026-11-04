@@ -3,9 +3,9 @@ package user
 import (
 	"context"
 	"errors"
-
-	"gorm.io/gorm"
 )
+
+var ErrNotFound = errors.New("user not found")
 
 type Service struct {
 	repo *Repository
@@ -17,20 +17,26 @@ func NewService(repo *Repository) *Service {
 	}
 }
 
-func (s *Service) FindOrCreateFromOAuth(ctx context.Context, identity AuthIdentity, user User) (*User, error) {
+func (s *Service) FindFromOAuth(ctx context.Context, provider, providerUserID string) (*User, error) {
 	existing, err := s.repo.FindAuthIdentity(
 		ctx,
-		identity.Provider,
-		identity.ProviderUserID,
+		provider,
+		providerUserID,
 	)
 
-	if err == nil {
-		return &existing.User, nil
-	}
-
-	if !errors.Is(err, gorm.ErrRecordNotFound) {
+	if err != nil {
 		return nil, err
 	}
 
-	return s.repo.CreateUserWithIdentity(ctx, identity, user)
+	return &existing.User, nil
+}
+
+func (s *Service) FindByID(ctx context.Context, id uint) (*User, error) {
+	existing, err := s.repo.FindById(ctx, id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return existing, nil
 }

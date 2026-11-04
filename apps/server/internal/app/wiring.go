@@ -20,7 +20,8 @@ func newApplication(
 	userRepository := user.NewRepository(db, logger)
 	userService := user.NewService(userRepository)
 	jwtService := platformAuth.NewJWTService(cfg.JWT)
-	authService := auth.NewService(userService, jwtService)
+	transactions := auth.NewTransactions(db, logger)
+	authService := auth.NewService(userService, transactions, jwtService)
 
 	return &Application{
 		config:        cfg,

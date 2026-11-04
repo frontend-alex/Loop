@@ -6,6 +6,7 @@ import (
 
 	"loop.com/server/internal/app"
 	"loop.com/server/internal/config"
+	"loop.com/server/internal/onboarding"
 	"loop.com/server/internal/platform/auth"
 	"loop.com/server/internal/platform/database"
 	"loop.com/server/internal/user"
@@ -13,7 +14,7 @@ import (
 
 func main() {
 	cfg, err := config.Load()
-	
+
 	if err != nil {
 		slog.Error("Configuration failed", "error", err)
 		os.Exit(1)
@@ -32,7 +33,7 @@ func main() {
 
 	defer database.Close(db)
 
-	if err := db.AutoMigrate(&user.User{}, &user.AuthIdentity{}); err != nil {
+	if err := db.AutoMigrate(&user.User{}, &user.AuthIdentity{}, &onboarding.Onboarding{}); err != nil {
 		logger.Error("Database migration failed", "error", err)
 		os.Exit(1)
 	}

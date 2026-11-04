@@ -2,37 +2,75 @@ package auth
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
+	"time"
 
+	"loop.com/server/internal/onboarding"
 	platformAuth "loop.com/server/internal/platform/auth"
-	"loop.com/server/internal/user"
+	userModel "loop.com/server/internal/user"
 )
 
 type Service struct {
-	users *user.Service
-	jwt   *platformAuth.JWTService
+	users        *userModel.Service
+	transactions *Transactions
+	jwt          *platformAuth.JWTService
 }
 
-func NewService(users *user.Service, jwt *platformAuth.JWTService) *Service {
+func NewService(users *userModel.Service, transactions *Transactions, jwt *platformAuth.JWTService) *Service {
 	return &Service{
-		users: users,
-		jwt:   jwt,
+		users:        users,
+		transactions: transactions,
+		jwt:          jwt,
 	}
 }
 
 func (s *Service) Authenticate(
 	ctx context.Context,
-	identity user.AuthIdentity,
-	user user.User,
+	identity userModel.AuthIdentity,
+	user userModel.User,
 ) (string, error) {
-	account, err := s.users.FindOrCreateFromOAuth(
-		ctx,
-		identity,
-		user,
-	)
+	
+	existing, err := s.users.FindFromOAuth(ctx, identity.Provider, identity.ProviderUserID)
+
+	if err == nil {
+		return s.jwt.GenerateToken(existing.ID)
+	}
+
+	if !errors.Is(err, userModel.ErrNotFound) {
+		return "", err
+	}
+
+	err = s.transactions.Run(ctx, func(
+		users *userModel.Repository,
+		onboardings *onboarding.Repository,
+	) error {
+		if err := users.Create(ctx, &user); err != nil {
+			return err
+		}
+
+		identity.UserID = user.ID
+
+		if err := users.CreateAuthIdentity(ctx, &identity); err != nil {
+			return err
+		}
+
+		record := onboarding.Onboarding{
+			UserID:    user.ID,
+			StartedAt: time.Now(),
+			Answers:   make(map[string]json.RawMessage),
+		}
+
+		if err := onboardings.Create(ctx, &record); err != nil {
+			return err
+		}
+
+		return nil
+	})
 
 	if err != nil {
 		return "", err
 	}
 
-	return s.jwt.GenerateToken(account.ID)
+	return s.jwt.GenerateToken(user.ID)
 }
