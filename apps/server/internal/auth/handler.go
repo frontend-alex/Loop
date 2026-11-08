@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"fmt"
 	"net/http"
 	"net/url"
 
@@ -12,10 +13,14 @@ import (
 
 type Handler struct {
 	service *Service
+	// config  config.Config
 }
 
 func NewHandler(service *Service) *Handler {
-	return &Handler{service: service}
+	return &Handler{
+		service: service,
+		// config:  config,
+	}
 }
 
 func (h *Handler) Begin(w http.ResponseWriter, r *http.Request) {
@@ -69,6 +74,21 @@ func (h *Handler) Callback(w http.ResponseWriter, r *http.Request) {
 			"token": []string{token},
 		}.Encode(),
 	}
+
+	// if h.config.Environment == "development" {
+	// 	httpx.JSON(w, http.StatusAccepted, token)
+	// 	http.Redirect(
+	// 		w,
+	// 		r,
+	// 		callbackUrl.String(),
+	// 		http.StatusFound,
+	// 	)
+	// 	return
+	// }
+	
+	fmt.Print("-------------------JWT----------------", "\n")
+	fmt.Print(token, "\n")
+	fmt.Print("-------------------end JWT----------------", "\n")
 
 	http.Redirect(
 		w,

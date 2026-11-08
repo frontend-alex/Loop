@@ -7,8 +7,10 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"loop.com/server/internal/auth"
+	"loop.com/server/internal/docs"
 	"loop.com/server/internal/health"
 	"loop.com/server/internal/httpx"
+	"loop.com/server/internal/user"
 )
 
 func (app *Application) Router() http.Handler {
@@ -23,9 +25,13 @@ func (app *Application) Router() http.Handler {
 	r.Use(middleware.Timeout(30 * time.Second))
 
 	health.RegisterRoutes(r, app.healthHandler)
+	if app.config.Environment == "development" {
+		docs.RegisterRoutes(r)
+	}
 
 	r.Route("/api/v1", func(r chi.Router) {
 		auth.RegisterRoutes(r, app.authHandler)
+		user.RegisterRoutes(r, app.userHandler, app.jwtService)
 	})
 
 	return r
