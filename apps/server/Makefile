@@ -62,6 +62,7 @@ db-run: network
 	docker run --rm \
 		--name "$(POSTGRES_CONTAINER)" \
 		--network "$(NETWORK_NAME)" \
+		--volume loop-postgres-data:/var/lib/postgresql \
 		-p "$(POSTGRES_PORT):$(POSTGRES_PORT)" \
 		-e POSTGRES_PASSWORD="$(POSTGRES_PASSWORD)" \
 		-d postgres 
