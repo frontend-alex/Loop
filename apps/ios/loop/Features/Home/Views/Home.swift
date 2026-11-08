@@ -4,20 +4,24 @@
 //
 //  Created by Aleksander Ivanov on 10/08/2026.
 //
-
 import SwiftUI
-import ComposableArchitecture
 
 struct HomeView: View {
-    let store: StoreOf<AuthProvider>
     
+    let isLoggingOut: Bool
+    let logoutError: String?
+    let onLogout: () -> Void
+
     var body: some View {
-        Text("Home")
-        AppButton(
-            "Logout",
-            action: {
-                store.send(.logout)
+        VStack {
+            Text("Home")
+            AppButton("Logout", action: onLogout)
+                .disabled(isLoggingOut)
+
+            if let logoutError {
+                Text(logoutError)
+                    .foregroundStyle(.red)
             }
-        )
+        }
     }
 }

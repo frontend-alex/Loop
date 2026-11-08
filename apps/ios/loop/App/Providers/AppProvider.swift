@@ -41,13 +41,14 @@ struct AppProvider {
         Reduce { state, action in
             switch action {
             case .splashFinished:
-                return .send(.auth(.task))
+                return .send(.auth(.restoreSession))
 
             case .auth(.delegate(.authenticated)):
                 state.route = .onboarding
                 return .none
 
             case .auth(.delegate(.unauthenticated)):
+                state.onboarding = .init()
                 state.route = .auth
                 return .none
 

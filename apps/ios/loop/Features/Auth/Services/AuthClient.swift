@@ -21,13 +21,6 @@ extension AuthClient: DependencyKey {
     )
 }
 
-extension DependencyValues {
-    var authClient: AuthClient {
-        get { self[AuthClient.self] }
-        set { self[AuthClient.self] = newValue }
-    }
-}
-
 enum AuthClientError: Error, Equatable, Sendable {
     case invalidURL
     case invalidCallback

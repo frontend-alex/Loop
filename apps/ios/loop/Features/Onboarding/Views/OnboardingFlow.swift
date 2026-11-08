@@ -11,24 +11,31 @@ struct OnboardingView: View {
     }
 
     private var topBar: some View {
-        HStack {
-            AppButton(
-                variant: .secondary,
-                fullWidth: false,
-                action: {
-                    store.send(.backTapped)
-                }
-            ){
-                Label("Back", systemImage: "chevron.left")
-                        .labelStyle(.iconOnly)
-            }
-            .disabled(
-                store.step == .questions &&
-                store.questionIndex == 0
-            )
+        ZStack{
+            ProgressView(value: store.progress)
+                .progressViewStyle(OnboardingProgressStyle())
+                .frame(width: 150)
+                .accessibilityLabel("Onboarding progress")
             
-            Spacer()
-        }        
+            HStack {
+                AppButton(
+                    variant: .secondary,
+                    fullWidth: false,
+                    action: {
+                        store.send(.backTapped)
+                    }
+                ){
+                    Label("Back", systemImage: "chevron.left")
+                            .labelStyle(.iconOnly)
+                }
+                .disabled(
+                    store.step == .questions &&
+                    store.questionIndex == 0
+                )
+                
+                Spacer()
+            }
+        }
     }
 
     private var bottomBar: some View {
@@ -42,6 +49,7 @@ struct OnboardingView: View {
 
             default:
                 _ = store.send(.nextTapped)
+                print(store.step)
             }
         }) {
             Text(bottomButtonTitle)
@@ -51,6 +59,8 @@ struct OnboardingView: View {
 
     private var bottomButtonTitle: String {
         switch store.step {
+            
+            
         case .alarm:
             return "Set Alarm"
 

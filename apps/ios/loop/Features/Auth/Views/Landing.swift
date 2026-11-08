@@ -5,10 +5,10 @@
 //  Created by Aleksander Ivanov on 22/09/2026.
 //
 import SwiftUI
-import ComposableArchitecture
 
 struct LandingView: View {
-    let store: StoreOf<AuthProvider>
+    let onRegister: () -> Void
+    let onLogin: () -> Void
     
     var body: some View {
         VStack() {
@@ -20,17 +20,13 @@ struct LandingView: View {
             VStack(spacing: 16) {
                 AppButton(
                     "Get Started",
-                    action: {
-                        store.send(.showRegister)
-                    }
+                    action: onRegister
                 )
                 
                 AppButton(
                     "Already have an account?",
                     variant: .secondary,
-                    action: {
-                        store.send(.showLogin)
-                    }
+                    action: onLogin
                 )
             }
             .padding(.horizontal, DesignSystem.Spacing.lg)
@@ -44,11 +40,5 @@ struct LandingView: View {
 }
 
 #Preview {
-    LandingView(store: Store(
-        initialState: AuthProvider.State(screen: .landing)
-    ) {
-        AuthProvider()
-    }
-                 
-    )
+    LandingView(onRegister: {}, onLogin: {})
 }

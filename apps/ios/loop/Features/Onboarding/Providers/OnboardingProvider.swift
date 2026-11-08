@@ -34,6 +34,26 @@ struct OnboardingProvider {
         var appsAuthorizationStatus: AppsAuthorizationStatus = .unknown
         var appsErrorMessage: String?
         var isSavingApps = false
+
+        var progress: Double {
+            let position: Int
+
+            switch step {
+            case .questions:
+                position = questionIndex
+            case .alarm:
+                position = questions.count
+            case .apps:
+                position = questions.count + 1
+            case .tasks:
+                position = questions.count + 2
+            case .summary:
+                position = questions.count + 3
+            }
+
+            let lastPosition = questions.count + 3
+            return Double(min(max(position, 0), lastPosition)) / Double(lastPosition)
+        }
     }
 
     enum Action {
@@ -114,6 +134,7 @@ struct OnboardingProvider {
                 }
 
                 state.draft.answers[question.id] = .multiple(selected)
+                
                 return .none
 
             case let .timeAnswerSelected(date):
@@ -162,6 +183,8 @@ struct OnboardingProvider {
                 }
 
                 state.isSaving = true
+                
+                
 
                 return .run { [alarm] send in
                     do {

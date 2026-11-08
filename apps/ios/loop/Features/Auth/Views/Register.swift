@@ -63,7 +63,7 @@ struct RegisterView: View {
 #Preview {
     RegisterView(
         store: Store(
-            initialState: AuthProvider.State(screen: .register)
+            initialState: AuthProvider.State()
         ) {
             AuthProvider()
         }

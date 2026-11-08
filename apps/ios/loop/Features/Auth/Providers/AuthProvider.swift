@@ -6,31 +6,23 @@
 //
 
 import ComposableArchitecture
+import Foundation
 
 @Reducer
 struct AuthProvider {
     @ObservableState
     struct State: Equatable {
-        enum Screen: Equatable {
-            case landing
-            case register
-            case login
-        }
-
-        var screen: Screen = .landing
         var session: AuthSession?
         var isLoading = false
         var errorMessage: String?
     }
 
     enum Action: Equatable {
-        case task
-        case showLogin
-        case showRegister
+        case restoreSession
         case loginTapped(AuthProviderKind)
         case registerTapped(AuthProviderKind)
-        case sessionRestored(AuthSession)
-        case authenticationFailed
+        case sessionLoaded(AuthSession?)
+        case failed(String)
         case logout
         case delegate(Delegate)
 
@@ -49,69 +41,55 @@ struct AuthProvider {
     var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
-            case .task:
-                state.isLoading = true
-
-                return .run { send in
-                    do {
-                        guard let token = try await authTokenStore.load() else {
-                            await send(.delegate(.unauthenticated))
-                            return
-                        }
-
-                        await send(
-                            .sessionRestored(
-                                AuthSession(token: token)
-                            )
-                        )
-                    } catch {
-                        await send(.delegate(.unauthenticated))
-                    }
-                }
-
-            case let .loginTapped(provider),
-                 let .registerTapped(provider):
+            case .restoreSession:
+                guard !state.isLoading else { return .none }
+                
                 state.isLoading = true
                 state.errorMessage = nil
 
-                return .run { send in
-                    do {
-                        let session = try await authClient.authenticate(provider)
-                        try await authTokenStore.save(session.token)
-
-                        await send(.sessionRestored(session))
-                    } catch {
-                        await send(.authenticationFailed)
-                    }
+                return .run { [authTokenStore] send in
+                    let token = try await authTokenStore.load()
+                    await send(.sessionLoaded(token.map(AuthSession.init(token:))))
+                } catch: { error, send in
+                    await send(.failed(error.localizedDescription))
                 }
 
-            case let .sessionRestored(session):
+            case let .loginTapped(provider), let .registerTapped(provider):
+                
+                guard !state.isLoading else { return .none }
+                state.isLoading = true
+                state.errorMessage = nil
+
+                return .run { [authClient, authTokenStore] send in
+                    let session = try await authClient.authenticate(provider)
+                    try await authTokenStore.save(session.token)
+
+                    await send(.sessionLoaded(session))
+                } catch: { error, send in
+                    await send(.failed(error.localizedDescription))
+                }
+
+            case let .sessionLoaded(session):
                 state.session = session
                 state.isLoading = false
-
-                return .send(.delegate(.authenticated))
-
-            case .authenticationFailed:
-                state.isLoading = false
-                state.errorMessage = "Authentication failed."
-                return .none
-
-            case .showLogin:
-                state.screen = .login
-                return .none
-
-            case .showRegister:
-                state.screen = .register
-                return .none
+                return .send(.delegate(session == nil ? .unauthenticated : .authenticated))
 
             case .logout:
-                state.session = nil
-                state.isLoading = false
+                guard !state.isLoading else { return .none }
+                state.isLoading = true
+                state.errorMessage = nil
 
-                return .run { send in
-                    try? await authTokenStore.delete()
-                    await send(.delegate(.unauthenticated))
+                return .run { [authTokenStore] send in
+                    try await authTokenStore.delete()
+                    await send(.sessionLoaded(nil))
+                } catch: { error, send in
+                    await send(.failed(error.localizedDescription))
                 }
+
+            case let .failed(message):
+                state.isLoading = false
+                state.errorMessage = message
+                return state.session == nil ? .send(.delegate(.unauthenticated)) : .none
 
             case .delegate:
                 return .none

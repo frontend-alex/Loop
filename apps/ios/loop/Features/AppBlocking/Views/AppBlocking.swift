@@ -19,7 +19,6 @@ struct AppBlockingView: View {
     private let restorationError: String?
 
     @State private var selection: FamilyActivitySelection
-    @State private var isPickerPresented = false
 
     init(store: StoreOf<OnboardingProvider>) {
         self.store = store
@@ -35,6 +34,7 @@ struct AppBlockingView: View {
                 _selection = State(initialValue: FamilyActivitySelection())
             }
             restorationError = nil
+            
         } catch {
             _selection = State(initialValue: FamilyActivitySelection())
             restorationError = "Could not restore selected apps: \(error.localizedDescription)"
@@ -71,15 +71,13 @@ struct AppBlockingView: View {
                 Text("Select the apps you want Loop to restrict during a focus session.")
                     .multilineTextAlignment(.center)
                     .foregroundStyle(.secondary)
-
-                Button("Choose Apps") {
-                    isPickerPresented = true
-                }
-
+                
+                
+                FamilyActivityPicker(selection: $selection)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+              
                 VStack(spacing: 4) {
                     Text("Selected apps: \(selection.applicationTokens.count)")
-                    Text("Selected categories: \(selection.categoryTokens.count)")
-                    Text("Selected websites: \(selection.webDomainTokens.count)")
                 }
                 .foregroundStyle(.secondary)
 
@@ -115,15 +113,6 @@ struct AppBlockingView: View {
                 store.send(.appsSelectionSaveFailed(restorationError))
             }
         }
-        .onChange(of: store.appsAuthorizationStatus) { _, status in
-            if status == .authorized {
-                isPickerPresented = true
-            }
-        }
-        .familyActivityPicker(
-            isPresented: $isPickerPresented,
-            selection: $selection
-        )
         .onChange(of: selection) { _, newSelection in
             do {
                 let data = try JSONEncoder().encode(newSelection)

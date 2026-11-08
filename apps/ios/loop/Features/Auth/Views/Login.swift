@@ -59,7 +59,7 @@ struct LoginView: View {
 #Preview("Login Screen") {
     LoginView(
         store: Store(
-            initialState: AuthProvider.State(screen: .login)
+            initialState: AuthProvider.State()
         ) {
             AuthProvider()
         }

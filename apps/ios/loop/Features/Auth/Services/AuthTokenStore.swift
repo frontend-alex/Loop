@@ -41,19 +41,6 @@ extension AuthTokenStore: DependencyKey {
             )
         }
     )
-
-    static let testValue = Self(
-        save: { _ in },
-        load: { nil },
-        delete: {}
-    )
-}
-
-extension DependencyValues {
-    var authTokenStore: AuthTokenStore {
-        get { self[AuthTokenStore.self] }
-        set { self[AuthTokenStore.self] = newValue }
-    }
 }
 
 private enum AuthTokenStoreKeys {

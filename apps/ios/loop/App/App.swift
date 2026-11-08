@@ -35,10 +35,9 @@ struct AppView: View {
 
         case .home:
             HomeView(
-                store: store.scope(
-                    state: \.auth,
-                    action: \.auth
-                )
+                isLoggingOut: store.auth.isLoading,
+                logoutError: store.auth.errorMessage,
+                onLogout: { store.send(.auth(.logout)) }
             )
         }
     }

@@ -56,6 +56,8 @@ delete-container:
 db-image:
 	docker pull postgres
 
+
+# TODO starts PostgreSQL with --rm and no named persistent volume. The running database uses an anonymous volume, which Docker removes when that container exits.
 db-run: network
 	docker run --rm \
 		--name "$(POSTGRES_CONTAINER)" \

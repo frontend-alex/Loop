@@ -11,7 +11,6 @@ struct AuthResponse: Decodable, Sendable {
     let data: AuthData
 }
 
-
 struct AuthData: Decodable, Sendable {
     let token: String
 }
