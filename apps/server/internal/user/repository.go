@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 
 	"gorm.io/gorm"
@@ -19,6 +20,20 @@ func NewRepository(db *gorm.DB, logger *slog.Logger) *Repository {
 	}
 }
 
+func (r *Repository) Create(
+	ctx context.Context,
+	user *User,
+) error {
+	return r.db.WithContext(ctx).Create(user).Error
+}
+
+func (r *Repository) CreateAuthIdentity(
+	ctx context.Context,
+	identity *AuthIdentity,
+) error {
+	return r.db.WithContext(ctx).Create(identity).Error
+}
+
 func (r *Repository) FindAuthIdentity(
 	ctx context.Context,
 	provider string,
@@ -31,6 +46,9 @@ func (r *Repository) FindAuthIdentity(
 		Where("provider = ? AND provider_user_id = ?", provider, providerUserID).
 		First(&identity).Error
 
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, ErrNotFound
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -38,25 +56,14 @@ func (r *Repository) FindAuthIdentity(
 	return &identity, nil
 }
 
-func (r *Repository) CreateUserWithIdentity(
-	ctx context.Context,
-	identity AuthIdentity,
-	user User,
-) (*User, error) {
-	err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		if err := tx.Create(&user).Error; err != nil {
-			return err
-		}
+func (r *Repository) FindById(ctx context.Context, id uint) (*User, error) {
+	var user User
 
-		identity.UserID = user.ID
+	err := r.db.WithContext(ctx).Where("id = ?", id).First(&user).Error
 
-		if err := tx.Create(&identity).Error; err != nil {
-			return err
-		}
-
-		return nil
-	})
-
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, ErrNotFound
+	}
 	if err != nil {
 		return nil, err
 	}
