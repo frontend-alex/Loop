@@ -7,6 +7,7 @@ import (
 
 func RegisterRoutes(r chi.Router, handler *Handler, jwtService *platformAuth.JWTService) {
 	r.With(jwtService.Middleware).Route("/onboarding", func(r chi.Router) {
-		// r.Post("/", handler.CreateOnboarding)
+		r.Patch("/update", handler.UpdateOnboarding)
+		r.Patch("/complete", handler.CompleteOnboarding)
 	})
 }

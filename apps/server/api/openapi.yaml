@@ -1,0 +1,477 @@
+openapi: 3.0.3
+info:
+  title: Loop API
+  version: 0.1.0
+  description: |
+    HTTP API for the Loop application.
+
+    To access protected endpoints, use Authorize and enter a JWT obtained from
+    the browser-based OAuth flow. Swagger UI sends it as a Bearer token in the
+    Authorization header. OAuth login endpoints are not documented here.
+servers:
+  - url: /
+    description: Same server as the documentation
+tags:
+  - name: Health
+    description: Server liveness and database readiness checks.
+  - name: Users
+    description: Authenticated user information.
+  - name: Onboarding
+    description: |
+      Account-owned draft saving and final-answer submission. Ownership comes
+      from the authenticated user; IDs and timestamps are backend-controlled.
+security: []
+paths:
+  /health/live:
+    get:
+      operationId: checkLiveness
+      tags:
+        - Health
+      summary: Check whether the server is running
+      responses:
+        '204':
+          description: The server is running. No response body.
+  /health/ready:
+    get:
+      operationId: checkReadiness
+      tags:
+        - Health
+      summary: Check whether the database is reachable
+      responses:
+        '204':
+          description: The database is reachable. No response body.
+        '503':
+          description: The database is unavailable.
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "database unavailable\n"
+  /api/v1/users/me:
+    get:
+      operationId: getCurrentUser
+      tags:
+        - Users
+      summary: Get the authenticated user
+      description: Returns the user identified by the Bearer token.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: The authenticated user.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '401':
+          description: The Bearer token is missing, invalid, or expired.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error:
+                  code: unauthorized
+                  message: Invalid or expired token
+        '500':
+          description: The user could not be loaded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error:
+                  code: user_lookup_failed
+                  message: Could not load user
+  /api/v1/onboarding/update:
+    patch:
+      operationId: updateOnboarding
+      tags:
+        - Onboarding
+      summary: Update onboarding answers and resume checkpoint
+      description: |
+        Send answers and currentStep together, without a data envelope. The user
+        is identified by the Bearer token; do not send a user ID or timestamps.
+
+        The examples use the question IDs and choices from
+        apps/ios/loop/Features/Onboarding/Models/Onboarding.swift. Synthesized
+        QuestionAnswer Codable values use single/multiple/time objects with an
+        unlabeled associated value named _0. With the default JSONEncoder,
+        Date is seconds since 2001-01-01T00:00:00Z, not Unix time or an ISO string.
+
+        Replaces the entire saved answer snapshot, rather than merging it.
+        Drafts may omit unanswered questions or send answers: {} to clear them.
+        Answers are stored as submitted, without questionnaire or step validation.
+        Step numbering is client-defined, so example values are illustrative.
+        Completed onboarding rejects draft saves.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OnboardingRequest'
+            examples:
+              partialDraft:
+                summary: Draft with the first two question answers
+                value:
+                  currentStep: 2
+                  answers:
+                    focus:
+                      single:
+                        _0: High
+                    distractions:
+                      multiple:
+                        _0:
+                          - Social media
+                          - Messages
+              allQuestionAnswers:
+                summary: All five iOS question answers
+                description: |
+                  The wake-time value represents 2026-11-09T07:00:00Z using
+                  Swift's default Date encoding. It is an example instant,
+                  not an agreed recurring wake-time/timezone contract.
+                value:
+                  currentStep: 4
+                  answers:
+                    focus:
+                      single:
+                        _0: High
+                    distractions:
+                      multiple:
+                        _0:
+                          - Social media
+                          - Messages
+                    wake-time:
+                      time:
+                        _0: 815900400
+                    goals:
+                      multiple:
+                        _0:
+                          - Focus
+                          - Exercise
+                    experience:
+                      single:
+                        _0: Beginner
+      responses:
+        '204':
+          description: Draft answers and current step saved. No response body.
+        '400':
+          $ref: '#/components/responses/InvalidOnboardingBody'
+        '401':
+          $ref: '#/components/responses/OnboardingUnauthorized'
+        '404':
+          $ref: '#/components/responses/OnboardingNotFound'
+        '409':
+          $ref: '#/components/responses/OnboardingAlreadyCompleted'
+        '413':
+          $ref: '#/components/responses/OnboardingBodyTooLarge'
+        '415':
+          $ref: '#/components/responses/OnboardingUnsupportedMediaType'
+        '500':
+          $ref: '#/components/responses/OnboardingFailure'
+  /api/v1/onboarding/complete:
+    patch:
+      operationId: completeOnboarding
+      tags:
+        - Onboarding
+      summary: Save final answers and complete onboarding
+      description: |
+        Send the final answers and currentStep together, without a data envelope.
+        Uses the same OnboardingRequest schema as Update. Saves answers,
+        currentStep, and server-generated CompletedAt atomically. A prior draft
+        save is not required. Answers are stored as submitted; the server does
+        not validate question IDs, choices, completeness, or step values.
+
+        A repeated completion succeeds without changing the original final
+        answers, step, or completion timestamp. Concurrent completions preserve
+        the first successful snapshot, and later draft saves cannot overwrite it.
+        Ownership comes from the Bearer token; do not send IDs or timestamps.
+        Answer encoding and step-numbering caveats are the same as for Update.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OnboardingRequest'
+            examples:
+              finalAnswers:
+                summary: Final snapshot of all five question answers
+                value:
+                  currentStep: 4
+                  answers:
+                    focus:
+                      single:
+                        _0: High
+                    distractions:
+                      multiple:
+                        _0: [Social media, Messages]
+                    wake-time:
+                      time:
+                        _0: 815900400
+                    goals:
+                      multiple:
+                        _0: [Focus, Exercise]
+                    experience:
+                      single:
+                        _0: Beginner
+      responses:
+        '204':
+          description: Onboarding completed, or already completed. No response body.
+        '400':
+          $ref: '#/components/responses/InvalidOnboardingBody'
+        '401':
+          $ref: '#/components/responses/OnboardingUnauthorized'
+        '404':
+          $ref: '#/components/responses/OnboardingNotFound'
+        '413':
+          $ref: '#/components/responses/OnboardingBodyTooLarge'
+        '415':
+          $ref: '#/components/responses/OnboardingUnsupportedMediaType'
+        '500':
+          $ref: '#/components/responses/OnboardingFailure'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Enter the JWT only, without the Bearer prefix.
+  responses:
+    InvalidOnboardingBody:
+      description: |
+        The body is empty, malformed, contains an unknown top-level field,
+        contains a value of the wrong Go type, or has trailing JSON content.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            emptyBody:
+              value:
+                error:
+                  code: invalid_request_body
+                  message: Request body must not be empty
+            unknownField:
+              value:
+                error:
+                  code: invalid_request_body
+                  message: 'Request body contains unknown field "completedAt"'
+    OnboardingUnauthorized:
+      description: The Bearer token is missing, invalid, or expired.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error:
+              code: unauthorized
+              message: Invalid or expired token
+    OnboardingNotFound:
+      description: No onboarding record exists for the authenticated user.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error:
+              code: onboarding_not_found
+              message: Onboarding not found
+    OnboardingAlreadyCompleted:
+      description: Draft updates cannot modify completed onboarding.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error:
+              code: onboarding_completed
+              message: Completed onboarding cannot be updated
+    OnboardingBodyTooLarge:
+      description: The body exceeds the decoder's 1048576-byte (1 MiB) read limit.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error:
+              code: invalid_request_body
+              message: Request body must not be larger than 1048576 bytes
+    OnboardingUnsupportedMediaType:
+      description: A supplied Content-Type is not application/json. The current decoder permits a missing header.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error:
+              code: invalid_request_body
+              message: Content-Type header is not application/json
+    OnboardingFailure:
+      description: An unexpected request-body decoding or database error occurred. Success is not reported.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error:
+              code: onboarding_save_failed
+              message: Could not save onboarding
+  schemas:
+    OnboardingRequest:
+      type: object
+      additionalProperties: false
+      description: |
+        Shared by Update and Complete, matching the Go OnboardingRequest DTO.
+        Swift sends answers and currentStep. Answers replace the saved snapshot.
+        No required-field, questionnaire, or step validation is performed.
+        Omitted answers default to null; omitted currentStep defaults to zero.
+        Database-managed fields are rejected by the existing JSON decoder.
+      properties:
+        answers:
+          $ref: '#/components/schemas/OnboardingAnswers'
+        currentStep:
+          type: integer
+          description: |
+            Client-defined resume checkpoint. No step range or terminal-step
+            mapping is enforced.
+          example: 2
+    OnboardingAnswers:
+      type: object
+      description: |
+        Question IDs and Codable shapes from the iOS Onboarding.swift model.
+        These properties document Swift's usual JSON shapes, not server-side
+        validation. The backend stores raw JSON values and allows additional keys.
+        Drafts may omit unanswered questions.
+      nullable: true
+      additionalProperties: {}
+      properties:
+        focus:
+          description: 'Single choice: Low, Medium, or High.'
+          allOf:
+            - $ref: '#/components/schemas/SingleQuestionAnswer'
+        distractions:
+          description: 'Multiple choices: Social media, Games, Messages.'
+          allOf:
+            - $ref: '#/components/schemas/MultipleQuestionAnswer'
+        wake-time:
+          $ref: '#/components/schemas/TimeQuestionAnswer'
+        goals:
+          description: 'Multiple choices: Focus, Exercise, Reading.'
+          allOf:
+            - $ref: '#/components/schemas/MultipleQuestionAnswer'
+        experience:
+          description: 'Single choice: Beginner, Intermediate, or Advanced.'
+          allOf:
+            - $ref: '#/components/schemas/SingleQuestionAnswer'
+    SingleQuestionAnswer:
+      type: object
+      additionalProperties: false
+      required:
+        - single
+      properties:
+        single:
+          type: object
+          additionalProperties: false
+          required:
+            - _0
+          properties:
+            _0:
+              type: string
+    MultipleQuestionAnswer:
+      type: object
+      additionalProperties: false
+      required:
+        - multiple
+      properties:
+        multiple:
+          type: object
+          additionalProperties: false
+          required:
+            - _0
+          properties:
+            _0:
+              type: array
+              uniqueItems: true
+              description: Encoded Swift Set<String>; element order is not significant.
+              items:
+                type: string
+    TimeQuestionAnswer:
+      type: object
+      additionalProperties: false
+      required:
+        - time
+      properties:
+        time:
+          type: object
+          additionalProperties: false
+          required:
+            - _0
+          properties:
+            _0:
+              type: number
+              format: double
+              description: |
+                Default Swift Date Codable representation: seconds since
+                2001-01-01T00:00:00Z. Changing JSONEncoder.dateEncodingStrategy
+                requires updating this schema and its examples.
+              example: 815900400
+    UserResponse:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          $ref: '#/components/schemas/User'
+    User:
+      type: object
+      description: Field names match the current Go user model's JSON output.
+      required:
+        - ID
+        - Email
+        - Name
+        - AvatarURL
+        - CreatedAt
+        - UpdatedAt
+      properties:
+        ID:
+          type: integer
+          minimum: 0
+          example: 1
+        Email:
+          type: string
+          example: user@example.com
+        Name:
+          type: string
+          example: Alex
+        AvatarURL:
+          type: string
+          example: https://example.com/avatar.png
+        CreatedAt:
+          type: string
+          format: date-time
+        UpdatedAt:
+          type: string
+          format: date-time
+    ErrorResponse:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: object
+          required:
+            - code
+            - message
+          properties:
+            code:
+              type: string
+              description: Machine-readable error code.
+              example: unauthorized
+            message:
+              type: string
+              description: Human-readable error details.
+              example: Invalid or expired token

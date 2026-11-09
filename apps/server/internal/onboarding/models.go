@@ -15,7 +15,6 @@ type Onboarding struct {
 
 	Answers map[string]json.RawMessage `gorm:"serializer:json;type:jsonb" json:"answers"`
 
-	StartedAt   time.Time
 	CompletedAt *time.Time
 	CurrentStep int
 
