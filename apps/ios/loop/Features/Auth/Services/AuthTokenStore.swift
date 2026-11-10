@@ -1,29 +1,23 @@
 import ComposableArchitecture
 import Foundation
 
-struct AuthTokenStore: Sendable {
+struct AuthTokenStore: Sendable, DependencyKey {
     var save: @Sendable (String) async throws -> Void
     var load: @Sendable () async throws -> String?
     var delete: @Sendable () async throws -> Void
-}
 
-extension AuthTokenStore: DependencyKey {
     static let liveValue = Self(
         save: { token in
-            guard let data = token.data(using: .utf8) else {
-                throw KeychainError.invalidData
-            }
-
             try await KeychainStore.shared.save(
-                data: data,
-                service: AuthTokenStoreKeys.service,
-                account: AuthTokenStoreKeys.accessToken
+                data: Data(token.utf8),
+                service: Keys.service,
+                account: Keys.accessToken
             )
         },
         load: {
             guard let data = try await KeychainStore.shared.read(
-                service: AuthTokenStoreKeys.service,
-                account: AuthTokenStoreKeys.accessToken
+                service: Keys.service,
+                account: Keys.accessToken
             ) else {
                 return nil
             }
@@ -36,27 +30,14 @@ extension AuthTokenStore: DependencyKey {
         },
         delete: {
             try await KeychainStore.shared.delete(
-                service: AuthTokenStoreKeys.service,
-                account: AuthTokenStoreKeys.accessToken
+                service: Keys.service,
+                account: Keys.accessToken
             )
         }
     )
 
-    static let testValue = Self(
-        save: { _ in },
-        load: { nil },
-        delete: {}
-    )
-}
-
-extension DependencyValues {
-    var authTokenStore: AuthTokenStore {
-        get { self[AuthTokenStore.self] }
-        set { self[AuthTokenStore.self] = newValue }
+    private enum Keys {
+        static let service = "com.loop.auth"
+        static let accessToken = "access-token"
     }
-}
-
-private enum AuthTokenStoreKeys {
-    static let service = "com.loop.auth"
-    static let accessToken = "access-token"
 }

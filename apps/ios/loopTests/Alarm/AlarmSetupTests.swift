@@ -161,7 +161,7 @@ struct AlarmSetupTests {
         )) {
             OnboardingProvider(defaults: defaults, session: fixture.session, apiBaseURL: fixture.baseURL)
         } withDependencies: {
-            $0.authTokenStore.load = { "test-token" }
+            $0[AuthTokenStore.self].load = { "test-token" }
         }
 
         await store.send(.alarm(.skipTapped))

@@ -107,8 +107,7 @@ struct AppProvider {
                 guard state.route == .loadingUser else { return .none }
                 return .send(.auth(.logout))
 
-            case .auth(.logout),
-                 .auth(.delegate(.unauthenticated)):
+            case .auth(.delegate(.unauthenticated)):
                 
                     state.route = .auth
                     state.user = nil

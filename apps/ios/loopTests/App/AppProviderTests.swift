@@ -51,13 +51,13 @@ struct AppProviderTests {
         let store = TestStore(initialState: AppProvider.State()) {
             AppProvider(defaults: defaults)
         } withDependencies: {
-            $0.authTokenStore.load = { "session-token" }
+            $0[AuthTokenStore.self].load = { "session-token" }
             $0[UserClient.self].fetch = { _ in response }
         }
 
         await store.send(.splashFinished)
         await store.receive(.auth(.task)) { $0.auth.isLoading = true }
-        await store.receive(\.auth.sessionRestored) {
+        await store.receive(\.auth.sessionResolved) {
             $0.auth.session = AuthSession(token: "session-token")
             $0.auth.isLoading = false
         }
@@ -111,7 +111,7 @@ struct AppProviderTests {
             AppProvider(defaults: defaults)
         } withDependencies: {
             $0[AuthClient.self].authenticate = { _ in AuthSession(token: "session-token") }
-            $0.authTokenStore.save = { savedToken.setValue($0) }
+            $0[AuthTokenStore.self].save = { savedToken.setValue($0) }
             $0[UserClient.self].fetch = { token in
                 #expect(savedToken.value == token)
                 return response
@@ -119,7 +119,7 @@ struct AppProviderTests {
         }
 
         await store.send(.auth(.loginTapped(.google))) { $0.auth.isLoading = true }
-        await store.receive(.auth(.sessionRestored(AuthSession(token: "session-token")))) {
+        await store.receive(.auth(.sessionResolved(AuthSession(token: "session-token")))) {
             $0.auth.session = AuthSession(token: "session-token")
             $0.auth.isLoading = false
         }
@@ -144,7 +144,7 @@ struct AppProviderTests {
                 try await clock.sleep(for: .seconds(1))
                 return response
             }
-            $0.authTokenStore.delete = {}
+            $0[AuthTokenStore.self].delete = {}
         }
         store.exhaustivity = .off
 
@@ -164,7 +164,7 @@ struct AppProviderTests {
             AppProvider(defaults: defaults)
         } withDependencies: {
             $0[UserClient.self].fetch = { _ in throw UserClient.Failure.unauthorized }
-            $0.authTokenStore.delete = { deleted.setValue(true) }
+            $0[AuthTokenStore.self].delete = { deleted.setValue(true) }
         }
         // A reset creates a fresh default alarm timestamp; assert session/routing explicitly.
         store.exhaustivity = .off
@@ -178,6 +178,28 @@ struct AppProviderTests {
         #expect(store.state.user == nil)
         #expect(store.state.onboarding.userID == nil)
         #expect(deleted.value)
+    }
+
+    @Test func failedLogoutPreservesTheSessionAndRoute() async {
+        var state = authenticatedState()
+        state.route = .home
+        state.user = user
+        let store = TestStore(initialState: state) {
+            AppProvider(defaults: defaults)
+        } withDependencies: {
+            $0[AuthTokenStore.self].delete = { throw KeychainError.invalidData }
+        }
+
+        await store.send(.auth(.logout)) {
+            $0.auth.isLoading = true
+        }
+        await store.receive(.auth(.logoutFailed)) {
+            $0.auth.isLoading = false
+            $0.auth.errorMessage = "Could not sign out. Please try again."
+        }
+        #expect(store.state.route == .home)
+        #expect(store.state.user == user)
+        #expect(store.state.auth.session == AuthSession(token: "session-token"))
     }
 
     @Test func draftsAreRestoredOnlyForTheirUser() throws {

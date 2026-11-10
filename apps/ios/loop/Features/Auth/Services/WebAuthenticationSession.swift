@@ -7,7 +7,6 @@ final class WebAuthenticationSession:
     ASWebAuthenticationPresentationContextProviding
 {
     private let provider: AuthProviderKind
-    private var authenticationSession: ASWebAuthenticationSession?
     private var continuation: CheckedContinuation<AuthSession, Error>?
 
     init(provider: AuthProviderKind) {
@@ -15,34 +14,33 @@ final class WebAuthenticationSession:
     }
 
     func authenticate() async throws -> AuthSession {
-        try await withCheckedThrowingContinuation { continuation in
+        let url = AppEnvironment.current.apiBaseURL
+            .appendingPathComponent("auth")
+            .appendingPathComponent(provider.rawValue)
+
+        guard let scheme = url.scheme,
+              ["http", "https"].contains(scheme),
+              url.host != nil
+        else {
+            throw AuthClientError.invalidURL
+        }
+
+        return try await withCheckedThrowingContinuation { continuation in
             self.continuation = continuation
 
-            do {
-                let endpoint = try authenticationURL()
-
-                let session = ASWebAuthenticationSession(
-                    url: endpoint,
-                    callbackURLScheme: "loop"
-                ) { [weak self] callbackURL, error in
-                    Task { @MainActor in
-                        self?.handleCompletion(
-                            callbackURL: callbackURL,
-                            error: error
-                        )
-                    }
+            let session = ASWebAuthenticationSession(
+                url: url,
+                callbackURLScheme: "loop"
+            ) { callbackURL, error in
+                Task { @MainActor in
+                    self.complete(callbackURL: callbackURL, error: error)
                 }
+            }
 
-                session.presentationContextProvider = self
-                session.prefersEphemeralWebBrowserSession = false
-                authenticationSession = session
+            session.presentationContextProvider = self
 
-                guard session.start() else {
-                    finish(with: .failure(AuthClientError.authenticationCancelled))
-                    return
-                }
-            } catch {
-                finish(with: .failure(error))
+            if !session.start() {
+                finish(.failure(AuthClientError.failedToStart))
             }
         }
     }
@@ -50,72 +48,36 @@ final class WebAuthenticationSession:
     func presentationAnchor(
         for session: ASWebAuthenticationSession
     ) -> ASPresentationAnchor {
-        guard
-            let windowScene = UIApplication.shared.connectedScenes
-                .compactMap({ $0 as? UIWindowScene })
-                .first(where: { $0.activationState == .foregroundActive }),
-            let window = windowScene.windows.first(where: { $0.isKeyWindow })
-        else {
-            return ASPresentationAnchor()
-        }
+        let scene = UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .first { $0.activationState == .foregroundActive }
 
-        return window
+        return scene?.windows.first { $0.isKeyWindow } ?? ASPresentationAnchor()
     }
 
-    private func authenticationURL() throws -> URL {
-        let endpoint = AppEnvironment.current.apiBaseURL
-            .appendingPathComponent("auth")
-            .appendingPathComponent(provider.backendPath)
-
-        guard
-            let scheme = endpoint.scheme,
-            ["http", "https"].contains(scheme),
-            endpoint.host != nil
-        else {
-            throw AuthClientError.invalidURL
-        }
-
-        return endpoint
-    }
-
-    private func handleCompletion(
-        callbackURL: URL?,
-        error: Error?
-    ) {
+    private func complete(callbackURL: URL?, error: Error?) {
         if let error {
-            if let authenticationError = error as? ASWebAuthenticationSessionError,
-               authenticationError.code == .canceledLogin {
-                finish(with: .failure(AuthClientError.authenticationCancelled))
+            if let webError = error as? ASWebAuthenticationSessionError,
+               webError.code == .canceledLogin {
+                finish(.failure(AuthClientError.authenticationCancelled))
             } else {
-                finish(with: .failure(error))
+                finish(.failure(error))
             }
             return
         }
 
         guard let callbackURL else {
-            finish(with: .failure(AuthClientError.invalidCallback))
+            finish(.failure(AuthClientError.invalidCallback))
             return
         }
 
-        do {
-            finish(
-                with: .success(
-                    try AuthCallbackParser.session(from: callbackURL)
-                )
-            )
-        } catch {
-            finish(with: .failure(error))
-        }
+        finish(Result {
+            try AuthCallbackParser.session(from: callbackURL)
+        })
     }
 
-    private func finish(
-        with result: Result<AuthSession, Error>
-    ) {
-        authenticationSession = nil
-
-        guard let continuation else {
-            return
-        }
+    private func finish(_ result: Result<AuthSession, Error>) {
+        guard let continuation else { return }
 
         self.continuation = nil
         continuation.resume(with: result)

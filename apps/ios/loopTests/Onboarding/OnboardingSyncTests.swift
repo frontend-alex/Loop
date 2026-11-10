@@ -19,7 +19,7 @@ struct OnboardingSyncTests {
         let store = TestStore(initialState: OnboardingProvider.State()) {
             OnboardingProvider(defaults: defaults, session: fixture.session, apiBaseURL: fixture.baseURL)
         } withDependencies: {
-            $0.authTokenStore.load = { "keychain-test-token" }
+            $0[AuthTokenStore.self].load = { "keychain-test-token" }
         }
 
         await store.send(.singleAnswerSelected("High")) {
@@ -56,7 +56,7 @@ struct OnboardingSyncTests {
         let store = TestStore(initialState: OnboardingProvider.State()) {
             OnboardingProvider(defaults: defaults, session: fixture.session, apiBaseURL: fixture.baseURL)
         } withDependencies: {
-            $0.authTokenStore.load = { "test-token" }
+            $0[AuthTokenStore.self].load = { "test-token" }
         }
 
         await store.send(.nextTapped) {
@@ -90,7 +90,7 @@ struct OnboardingSyncTests {
         let store = TestStore(initialState: OnboardingProvider.State()) {
             OnboardingProvider(defaults: defaults, session: fixture.session, apiBaseURL: fixture.baseURL)
         } withDependencies: {
-            $0.authTokenStore.load = { token }
+            $0[AuthTokenStore.self].load = { token }
         }
 
         await store.send(.nextTapped) {
@@ -112,7 +112,7 @@ struct OnboardingSyncTests {
         let store = TestStore(initialState: OnboardingProvider.State()) {
             OnboardingProvider(defaults: defaults, session: fixture.session, apiBaseURL: fixture.baseURL)
         } withDependencies: {
-            $0.authTokenStore.load = { "expired-test-token" }
+            $0[AuthTokenStore.self].load = { "expired-test-token" }
         }
 
         await store.send(.nextTapped) {
@@ -136,7 +136,7 @@ struct OnboardingSyncTests {
         let store = TestStore(initialState: initial) {
             OnboardingProvider(defaults: defaults, session: failed.session, apiBaseURL: failed.baseURL)
         } withDependencies: {
-            $0.authTokenStore.load = { "test-token" }
+            $0[AuthTokenStore.self].load = { "test-token" }
         }
 
         await store.send(.finishTapped) {
@@ -159,7 +159,7 @@ struct OnboardingSyncTests {
         let reopened = TestStore(initialState: restored) {
             OnboardingProvider(defaults: defaults, session: successful.session, apiBaseURL: successful.baseURL)
         } withDependencies: {
-            $0.authTokenStore.load = { "test-token" }
+            $0[AuthTokenStore.self].load = { "test-token" }
         }
 
         await reopened.send(.task) {
