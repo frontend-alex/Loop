@@ -4,39 +4,39 @@ import ComposableArchitecture
 struct OnboardingView: View {
     let store: StoreOf<OnboardingProvider>
 
-    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    private var adaptiveColor: Color {
-        colorScheme == .light ? .black : .white
+    private var isSaving: Bool {
+        store.alarm.isSaving || store.appBlocking.isSaving || store.isSyncing
+    }
+
+    private var canGoBack: Bool {
+        shouldShowNavigationBars && !store.isNavigationLocked && !isSaving
+            && (store.step != .questions || store.questionIndex > 0)
     }
 
     private var topBar: some View {
-        HStack {
+        HStack(spacing: DesignSystem.Spacing.lg) {
             AppButton(
                 variant: .secondary,
-                fullWidth: false,
+                size: .iconSmall,
                 action: {
                     store.send(.backTapped)
                 }
-            ){
+            ) {
                 Label("Back", systemImage: "chevron.left")
-                        .labelStyle(.iconOnly)
+                    .labelStyle(.iconOnly)
             }
-            .disabled(
-                store.step == .questions &&
-                store.questionIndex == 0
-            )
-            
-            Spacer()
-        }        
+            .disabled(!canGoBack)
+
+            OnboardingProgress(store: store)
+        }
+        .padding(.vertical, DesignSystem.Spacing.sm)
     }
 
     private var bottomBar: some View {
         AppButton(action: {
             switch store.step {
-            case .alarm:
-                _ = store.send(.alarmSetTapped)
-
             case .summary:
                 _ = store.send(.finishTapped)
 
@@ -44,9 +44,14 @@ struct OnboardingView: View {
                 _ = store.send(.nextTapped)
             }
         }) {
-            Text(bottomButtonTitle)
+            HStack(spacing: DesignSystem.Spacing.sm) {
+                if isSaving {
+                    ProgressView()
+                }
+                Text(bottomButtonTitle)
+            }
         }
-        .disabled(!canContinue || store.isSaving)
+        .disabled(!canContinue || isSaving || store.isNavigationLocked)
     }
 
     private var bottomButtonTitle: String {
@@ -62,17 +67,21 @@ struct OnboardingView: View {
         }
     }
 
-    private var shouldShowBottomBar: Bool {
+    private var shouldShowNavigationBars: Bool {
         switch store.step {
         case .alarm:
-            return store.alarmAuthorizationStatus == .authorized
+            return store.alarm.authorizationStatus == .authorized
             
         case .apps:
-            return store.appsAuthorizationStatus == .authorized
+            return store.appBlocking.authorizationStatus == .authorized
 
-        default:
+        case .questions, .tasks, .summary:
             return true
         }
+    }
+
+    private var shouldShowBottomBar: Bool {
+        store.step != .alarm && shouldShowNavigationBars
     }
 
     private var canContinue: Bool {
@@ -84,7 +93,7 @@ struct OnboardingView: View {
 
             let question = store.questions[store.questionIndex]
 
-            guard let answer = store.draft.answers[question.id] else {
+            guard let answer = store.answers[question.id] else {
                 return false
             }
 
@@ -97,58 +106,119 @@ struct OnboardingView: View {
             }
 
         case .alarm:
-            return store.draft.alarm != nil
+            return store.alarm.authorizationStatus == .authorized
 
-        case .apps, .tasks, .summary:
+        case .apps:
+            return store.appBlocking.errorMessage == nil
+
+        case .tasks, .summary:
             return true
         }
     }
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: DesignSystem.Spacing.md) {
-                topBar
-
-                Group {
-                    switch store.step {
-                    case .questions:
-                        QuestionsView(store: store)
-
-                    case .alarm:
-                        AlarmView(
-                            store: store,
-                            onAlarmChanged: { alarm in
-                                store.send(.alarmSelected(alarm))
-                            }
-                        )
-
-                    case .apps:
-                        AppBlockingView(store: store)
-
-                    case .tasks:
-                        TasksView()
-
-                    case .summary:
-                        Text("Summary")
-                    }
+            VStack(spacing: DesignSystem.Spacing.sm) {
+                if shouldShowNavigationBars {
+                    topBar
                 }
+
+                ZStack(alignment: .top) {
+                    Group {
+                        switch store.step {
+                        case .questions:
+                            QuestionsView(
+                                store: store,
+                                question: store.questions[store.questionIndex]
+                            )
+
+                        case .alarm:
+                            AlarmView(
+                                store: store.scope(state: \.alarm, action: \.alarm),
+                                isNavigationLocked: store.isNavigationLocked
+                            ) {
+                                OnboardingHeading(
+                                    title: "Set your alarm",
+                                    subtitle: ""
+                                )
+                            }
+
+                        case .apps:
+                            AppBlockingView(
+                                store: store.scope(state: \.appBlocking, action: \.appBlocking)
+                            ) {
+                                OnboardingHeading(
+                                    title: "Choose distracting apps",
+                                    subtitle: ""
+                                )
+                            }
+
+                        case .tasks:
+                            TasksView()
+
+                        case .summary:
+                            OnboardingSummary(store: store)
+                        }
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                    .id(store.currentStep)
+                    .transition(OnboardingPageTransition(
+                        store: store,
+                        page: store.currentStep,
+                        reduceMotion: reduceMotion
+                    ))
+                }
+                .disabled(store.isNavigationLocked)
                 .frame(
                     maxWidth: .infinity,
                     maxHeight: .infinity,
-                    alignment: .center
+                    alignment: .top
+                )
+                .animation(
+                    reduceMotion ? nil : .smooth(duration: 0.3),
+                    value: store.currentStep
                 )
             }
-            .safeAreaPadding(.horizontal, DesignSystem.Spacing.md)
+            .safeAreaPadding(.horizontal, DesignSystem.Spacing.lg)
+            .background(DesignSystem.Semantic.backgroundPrimary.ignoresSafeArea())
+            .tint(DesignSystem.Palette.brand500)
+            .onSwipeBack(isEnabled: canGoBack) {
+                store.send(.backTapped)
+            }
             .toolbar(.hidden, for: .navigationBar)
-            
-            .safeAreaInset(edge: .bottom) {
-                if shouldShowBottomBar {
-                    bottomBar
-                        .padding(.horizontal, DesignSystem.Spacing.md)
-                        .padding(.vertical, DesignSystem.Spacing.sm)
+
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                if shouldShowBottomBar || store.persistenceErrorMessage != nil || store.syncErrorMessage != nil {
+                    VStack(spacing: DesignSystem.Spacing.sm) {
+                        if let message = store.syncErrorMessage {
+                            Text(message)
+                                .font(.callout)
+                                .foregroundStyle(DesignSystem.Palette.danger600)
+                                .multilineTextAlignment(.center)
+                            AppButton(action: { store.send(.retrySyncTapped) }) {
+                                Text("Retry Save")
+                            }
+                            .disabled(store.isSyncing)
+                        }
+                        if let message = store.persistenceErrorMessage {
+                            Text(message)
+                                .font(.callout)
+                                .foregroundStyle(DesignSystem.Palette.danger600)
+                                .multilineTextAlignment(.center)
+                        }
+                        if shouldShowBottomBar {
+                            bottomBar
+                        }
+                    }
+                    .padding(.horizontal, DesignSystem.Spacing.lg)
+                    .padding(.vertical, DesignSystem.Spacing.lg)
+                    .background(DesignSystem.Semantic.backgroundPrimary)
                 }
             }
         }
+//        .task {
+//            store.send(.task)
+//        }
     }
 }
 
@@ -157,10 +227,27 @@ struct OnboardingView: View {
         store: Store(
             initialState: OnboardingProvider.State(
                 step: .questions,
-                alarmAuthorizationStatus: .authorized
+                alarm: AlarmProvider.State(authorizationStatus: .authorized)
             )
         ) {
             OnboardingProvider()
         }
     )
+}
+
+#Preview("Dark • Alarm") {
+    OnboardingView(store: Store(initialState: OnboardingProvider.State(
+        step: .alarm,
+        alarm: AlarmProvider.State(authorizationStatus: .authorized)
+    )) {
+        OnboardingProvider()
+    })
+    .preferredColorScheme(.dark)
+}
+
+#Preview("Tasks • Large text") {
+    OnboardingView(store: Store(initialState: OnboardingProvider.State(step: .tasks)) {
+        OnboardingProvider()
+    })
+    .environment(\.dynamicTypeSize, .accessibility1)
 }

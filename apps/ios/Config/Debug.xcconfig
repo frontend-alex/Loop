@@ -1,2 +1,4 @@
 APP_ENV = development
-API_BASE_URL = http:/$()/localhost:8080/api/v1
+//API_BASE_URL = http:/$()/localhost:8080/api/v1
+API_BASE_URL = http:/$()/192.168.2.9:8080/api/v1
+AUTH_TOKEN = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3OTQzMzAyOTYsInVzZXJfaWQiOjF9.lm5RwnGbuLfT-DB_e9Yx6PD6BTdsT86uZByANN3sYPs

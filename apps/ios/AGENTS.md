@@ -4,10 +4,7 @@ These rules apply to every request in this repository.
 
 ## Source Changes
 
-- Do not create, edit, delete, or rename application source files.
-- Do not modify tests, dependencies, generated files, platform files, or configuration files unless the user explicitly asks for that exact file change.
-- When implementation is requested, explain the design and provide the proposed code or patch in the response only. Wait for explicit permission before applying it.
-- Treat `/write` as explicit permission to implement the current request. When `/write` is present, source edits are allowed and the implementation must be verified. Without `/write`, remain proposal-only.
+- Make only the source, test, dependency, generated-file, platform-file, or configuration changes needed for the user's request.
 - Read the repository first and reference the exact files and symbols involved.
 
 ## Verification

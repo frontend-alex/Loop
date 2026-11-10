@@ -70,6 +70,10 @@ func (h *Handler) Callback(w http.ResponseWriter, r *http.Request) {
 		}.Encode(),
 	}
 
+	print("------------------------JWT-----------------------", "\n")
+	print(token, "\n")
+	print("------------------------JWT-----------------------", "\n")
+
 	http.Redirect(
 		w,
 		r,

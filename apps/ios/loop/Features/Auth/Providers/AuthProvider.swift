@@ -11,13 +11,6 @@ import ComposableArchitecture
 struct AuthProvider {
     @ObservableState
     struct State: Equatable {
-        enum Screen: Equatable {
-            case landing
-            case register
-            case login
-        }
-
-        var screen: Screen = .landing
         var session: AuthSession?
         var isLoading = false
         var errorMessage: String?
@@ -25,13 +18,13 @@ struct AuthProvider {
 
     enum Action: Equatable {
         case task
-        case showLogin
-        case showRegister
+
         case loginTapped(AuthProviderKind)
-        case registerTapped(AuthProviderKind)
         case sessionRestored(AuthSession)
+        
         case authenticationFailed
         case logout
+        
         case delegate(Delegate)
 
         enum Delegate: Equatable {
@@ -49,9 +42,9 @@ struct AuthProvider {
     var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
+                
             case .task:
                 state.isLoading = true
-
                 return .run { send in
                     do {
                         guard let token = try await authTokenStore.load() else {
@@ -69,8 +62,7 @@ struct AuthProvider {
                     }
                 }
 
-            case let .loginTapped(provider),
-                 let .registerTapped(provider):
+            case let .loginTapped(provider):
                 state.isLoading = true
                 state.errorMessage = nil
 
@@ -94,14 +86,6 @@ struct AuthProvider {
             case .authenticationFailed:
                 state.isLoading = false
                 state.errorMessage = "Authentication failed."
-                return .none
-
-            case .showLogin:
-                state.screen = .login
-                return .none
-
-            case .showRegister:
-                state.screen = .register
                 return .none
 
             case .logout:

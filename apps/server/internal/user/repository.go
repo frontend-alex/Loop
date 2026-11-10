@@ -63,3 +63,17 @@ func (r *Repository) FindById(ctx context.Context, id uint) (*User, error) {
 
 	return &user, nil
 }
+
+func (r *Repository) HasCompletedOnboarding(ctx context.Context, userID uint) (bool, error) {
+	var count int64
+
+	err := r.db.WithContext(ctx).
+		Table("onboardings").
+		Where("user_id = ? AND completed_at IS NOT NULL", userID).
+		Count(&count).
+		Error
+
+	return count > 0, err
+}
+
+

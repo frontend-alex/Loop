@@ -9,17 +9,24 @@ struct AppEnvironment: Sendable {
 
     let name: Name
     let apiBaseURL: URL
+    let authToken: String
 
     static let current: AppEnvironment = {
         let bundle = Bundle.main
+        
         let rawName = bundle.object(
             forInfoDictionaryKey: "APP_ENV"
         ) as? String
+        
         let name = Name(rawValue: rawName ?? "") ?? .development
 
         let rawURL = bundle.object(
             forInfoDictionaryKey: "API_BASE_URL"
         ) as? String
+        
+        let authToken = bundle.object(
+            forInfoDictionaryKey: "AUTH_TOKEN"
+        ) as! String
 
         guard let rawURL, let apiBaseURL = URL(string: rawURL) else {
             fatalError("API_BASE_URL is missing or invalid.")
@@ -27,7 +34,8 @@ struct AppEnvironment: Sendable {
 
         return AppEnvironment(
             name: name,
-            apiBaseURL: apiBaseURL
+            apiBaseURL: apiBaseURL,
+            authToken: authToken
         )
     }()
 }

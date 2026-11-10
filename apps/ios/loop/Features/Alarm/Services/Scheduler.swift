@@ -54,7 +54,7 @@ enum AlarmScheduler {
             return
         }
         
-        try await AlarmManager.shared.cancel(id: id)
+        try AlarmManager.shared.cancel(id: id)
         print("Previous alarm cancelled:", id)
     }
 }

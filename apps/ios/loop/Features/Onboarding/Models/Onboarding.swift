@@ -9,11 +9,26 @@ import Foundation
 
 // MARK: - Onboarding state
 
+enum OnboardingStep: String, Codable, Sendable {
+    case questions
+    case alarm
+    case apps
+    case tasks
+    case summary
+}
+
 struct OnboardingDraft: Equatable, Codable, Sendable {
+    var step: OnboardingStep = .questions
+    var questionIndex = 0
     var answers: [String: QuestionAnswer] = [:]
     var alarm: Alarm?
     var distractingApps: [AppSelection] = []
     var tasks: [TaskItem] = []
+}
+
+struct OnboardingRequest: Codable, Equatable, Sendable {
+    let answers: [String: QuestionAnswer]
+    let currentStep: Int
 }
 
 // MARK: - Questions
@@ -46,7 +61,7 @@ struct Question: Identifiable, Equatable, Codable, Sendable {
         Question(
             id: "wake-time",
             heading: "When should you wake up?",
-            subHeading: "Choose a time.",
+            subHeading: "",
             body: .time
         ),
         Question(
@@ -68,16 +83,6 @@ enum QuestionAnswer: Equatable, Codable, Sendable {
     case single(String)
     case multiple(Set<String>)
     case time(Date)
-}
-
-// MARK: - App selection
-
-struct AppSelection: Codable, Equatable, Sendable {
-    let encodedSelection: Data
-
-    static let empty = AppSelection(
-        encodedSelection: Data()
-    )
 }
 
 // MARK: - Tasks

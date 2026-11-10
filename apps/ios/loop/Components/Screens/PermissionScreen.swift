@@ -12,6 +12,7 @@ struct PermissionScreen<PhoneContent: View>: View {
     let title: String
     let description: String
     let showsNotch: Bool
+    let showsBackground: Bool
     let primaryActionTitle: String
     let secondaryActionTitle: String
     let isPrimaryActionEnabled: Bool
@@ -28,6 +29,7 @@ struct PermissionScreen<PhoneContent: View>: View {
         title: String,
         description: String,
         showsNotch: Bool = true,
+        showsBackground: Bool = true,
         primaryActionTitle: String,
         secondaryActionTitle: String,
         isPrimaryActionEnabled: Bool = true,
@@ -39,6 +41,7 @@ struct PermissionScreen<PhoneContent: View>: View {
         self.title = title
         self.description = description
         self.showsNotch = showsNotch
+        self.showsBackground = showsBackground
         self.primaryActionTitle = primaryActionTitle
         self.secondaryActionTitle = secondaryActionTitle
         self.isPrimaryActionEnabled = isPrimaryActionEnabled
@@ -49,8 +52,10 @@ struct PermissionScreen<PhoneContent: View>: View {
 
     var body: some View {
         ZStack(alignment: .bottom) {
-            Color(uiColor: .systemBackground)
-                .ignoresSafeArea()
+            if showsBackground {
+                DesignSystem.Semantic.backgroundPrimary
+                    .ignoresSafeArea()
+            }
 
             VStack(spacing: 0) {
                 if !accessibilityReduceMotion && !dynamicTypeSize.isAccessibilitySize {
@@ -88,8 +93,7 @@ struct PermissionScreen<PhoneContent: View>: View {
                 Text(secondaryActionTitle)
             }
         }
-        .padding(.top, 16)
-        .padding(.horizontal, 20)
+        .padding(.horizontal, DesignSystem.Spacing.lg)
         .frame(maxWidth: .infinity)
         .background {
             Rectangle()

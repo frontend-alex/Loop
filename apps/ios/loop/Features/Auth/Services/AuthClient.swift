@@ -5,12 +5,21 @@ struct AuthClient: Sendable {
         @Sendable (AuthProviderKind) async throws -> AuthSession
 }
 
+enum AuthClientError: Error, Equatable, Sendable {
+    case invalidURL
+    case invalidCallback
+    case authenticationCancelled
+}
+
+
 extension AuthClient: DependencyKey {
     static let liveValue = Self(
         authenticate: { provider in
-            try await WebAuthenticationSession(
-                provider: provider
-            ).authenticate()
+            #if DEBUG && !targetEnvironment(simulator)
+            return await AuthSession(token: AppEnvironment.current.authToken)
+            #else
+            return try await WebAuthenticationSession(provider: provider).authenticate()
+            #endif
         }
     )
 
@@ -20,7 +29,6 @@ extension AuthClient: DependencyKey {
         }
     )
 }
-
 extension DependencyValues {
     var authClient: AuthClient {
         get { self[AuthClient.self] }
@@ -28,8 +36,3 @@ extension DependencyValues {
     }
 }
 
-enum AuthClientError: Error, Equatable, Sendable {
-    case invalidURL
-    case invalidCallback
-    case authenticationCancelled
-}
