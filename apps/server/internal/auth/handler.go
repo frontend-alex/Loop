@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"fmt"
 	"net/http"
 	"net/url"
 
@@ -12,10 +13,14 @@ import (
 
 type Handler struct {
 	service *Service
+	// config  config.Config
 }
 
 func NewHandler(service *Service) *Handler {
-	return &Handler{service: service}
+	return &Handler{
+		service: service,
+		// config:  config,
+	}
 }
 
 func (h *Handler) Begin(w http.ResponseWriter, r *http.Request) {

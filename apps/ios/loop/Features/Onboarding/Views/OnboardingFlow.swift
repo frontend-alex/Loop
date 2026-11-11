@@ -42,6 +42,7 @@ struct OnboardingView: View {
 
             default:
                 _ = store.send(.nextTapped)
+                print(store.step)
             }
         }) {
             HStack(spacing: DesignSystem.Spacing.sm) {
@@ -56,6 +57,8 @@ struct OnboardingView: View {
 
     private var bottomButtonTitle: String {
         switch store.step {
+            
+            
         case .alarm:
             return "Set Alarm"
 

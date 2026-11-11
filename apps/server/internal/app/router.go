@@ -26,6 +26,9 @@ func (app *Application) Router() http.Handler {
 	r.Use(middleware.Timeout(30 * time.Second))
 
 	health.RegisterRoutes(r, app.healthHandler)
+	if app.config.Environment == "development" {
+		docs.RegisterRoutes(r)
+	}
 
 	if app.config.Environment == "development" {
 		docs.RegisterRoutes(r)

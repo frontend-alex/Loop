@@ -33,6 +33,7 @@ container: image
 start:
 	docker start "$(CONTAINER_NAME)"
 
+
 run: image db-run
 	docker run --rm \
 		--network "$(NETWORK_NAME)" \
@@ -55,10 +56,13 @@ delete-container:
 db-image:
 	docker pull postgres
 
+
+# TODO starts PostgreSQL with --rm and no named persistent volume. The running database uses an anonymous volume, which Docker removes when that container exits.
 db-run: network
 	docker run --rm \
 		--name "$(POSTGRES_CONTAINER)" \
 		--network "$(NETWORK_NAME)" \
+		--volume loop-postgres-data:/var/lib/postgresql \
 		-p "$(POSTGRES_PORT):$(POSTGRES_PORT)" \
 		-e POSTGRES_PASSWORD="$(POSTGRES_PASSWORD)" \
 		-d postgres 

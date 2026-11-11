@@ -5,10 +5,10 @@
 //  Created by Aleksander Ivanov on 22/09/2026.
 //
 import SwiftUI
-import ComposableArchitecture
 
 struct LandingView: View {
-    let store: StoreOf<AuthProvider>
+    let onRegister: () -> Void
+    let onLogin: () -> Void
     
     @State private var showProviders = false;
     @State private var sheetHeight: CFloat = 0;

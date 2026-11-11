@@ -57,7 +57,7 @@ struct AppProvider {
         Reduce { state, action in
             switch action {
             case .splashFinished:
-                return .send(.auth(.task))
+                return .send(.auth(.restoreSession))
 
             case .auth(.delegate(.authenticated)), .retryUserFetch:
                 guard let token = state.auth.session?.token, !token.isEmpty else {
