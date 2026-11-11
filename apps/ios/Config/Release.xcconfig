@@ -1,2 +1,2 @@
 APP_ENV = production
-API_BASE_URL = https:/$()/api.loop.app
+API_BASE_URL = https:/$()/api.loop.app/api/v1

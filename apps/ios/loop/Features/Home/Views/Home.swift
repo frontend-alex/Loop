@@ -7,20 +7,53 @@
 import SwiftUI
 
 struct HomeView: View {
+    let store: StoreOf<AuthProvider>
+    let user: User?
     
     let isLoggingOut: Bool
     let logoutError: String?
     let onLogout: () -> Void
 
     var body: some View {
-        VStack {
-            Text("Home")
-            AppButton("Logout", action: onLogout)
-                .disabled(isLoggingOut)
+        Form {
+            Section("User") {
+                if let user {
+                    AsyncImage(url: URL(string: user.avatarURL)) { phase in
+                        if let image = phase.image {
+                            image
+                                .resizable()
+                                .scaledToFill()
+                        } else {
+                            Image(systemName: "person.crop.circle.fill")
+                                .resizable()
+                                .scaledToFit()
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    .frame(width: 80, height: 80)
+                    .clipShape(Circle())
+                    .frame(maxWidth: .infinity)
+                    .accessibilityLabel("Profile picture")
 
-            if let logoutError {
-                Text(logoutError)
-                    .foregroundStyle(.red)
+                    LabeledContent("ID", value: String(user.id))
+                    LabeledContent("Name", value: user.name)
+                    LabeledContent("Email", value: user.email)
+                    LabeledContent(
+                        "Created", value: user.createdAt.formatted(date: .abbreviated, time: .shortened)
+                    )
+                    LabeledContent(
+                        "Updated", value: user.updatedAt.formatted(date: .abbreviated, time: .shortened)
+                    )
+                } else {
+                    Text("No user data available.")
+                }
+            }
+            .textSelection(.enabled)
+
+            Section {
+                AppButton("Logout") {
+                    store.send(.logout)
+                }
             }
         }
     }

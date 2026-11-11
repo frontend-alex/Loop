@@ -7,6 +7,7 @@ import SwiftUI
 
 struct AlarmPermission: View {
     var tint: Color = .orange
+    var showsBackground = true
     var title: String
     var description: String
     var primaryActionTitle: String
@@ -21,6 +22,7 @@ struct AlarmPermission: View {
             title: title,
             description: description,
             showsNotch: false,
+            showsBackground: showsBackground,
             primaryActionTitle: primaryActionTitle,
             secondaryActionTitle: secondaryActionTitle,
             isPrimaryActionEnabled: isPrimaryActionEnabled,

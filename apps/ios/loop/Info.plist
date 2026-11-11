@@ -6,6 +6,8 @@
 	<string>$(API_BASE_URL)</string>
 	<key>APP_ENV</key>
 	<string>$(APP_ENV)</string>
+	<key>AUTH_TOKEN</key>
+	<string>$(AUTH_TOKEN)</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>

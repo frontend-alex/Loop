@@ -10,6 +10,7 @@ import (
 	"loop.com/server/internal/docs"
 	"loop.com/server/internal/health"
 	"loop.com/server/internal/httpx"
+	"loop.com/server/internal/onboarding"
 	"loop.com/server/internal/user"
 )
 
@@ -29,9 +30,14 @@ func (app *Application) Router() http.Handler {
 		docs.RegisterRoutes(r)
 	}
 
+	if app.config.Environment == "development" {
+		docs.RegisterRoutes(r)
+	}
+
 	r.Route("/api/v1", func(r chi.Router) {
 		auth.RegisterRoutes(r, app.authHandler)
 		user.RegisterRoutes(r, app.userHandler, app.jwtService)
+		onboarding.RegisterRoutes(r, app.onboardingHandler, app.jwtService)
 	})
 
 	return r

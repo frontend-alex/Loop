@@ -6,7 +6,7 @@
 //
 import Foundation
 
-enum AlarmWeekday: String, CaseIterable, Codable, Hashable, Identifiable {
+nonisolated enum AlarmWeekday: String, CaseIterable, Codable, Hashable, Identifiable {
     case sunday
     case monday
     case tuesday
@@ -22,7 +22,7 @@ enum AlarmWeekday: String, CaseIterable, Codable, Hashable, Identifiable {
     }
 }
 
-enum AlarmSound: String, CaseIterable, Codable, Hashable, Identifiable {
+nonisolated enum AlarmSound: String, CaseIterable, Codable, Hashable, Identifiable {
     case `default`
     case radar
     case birds
@@ -35,6 +35,19 @@ enum AlarmSound: String, CaseIterable, Codable, Hashable, Identifiable {
 }
 
 extension Alarm {
+    func nextOccurrence(after now: Date, calendar: Calendar = .current) -> Date? {
+        var components = calendar.dateComponents([.hour, .minute], from: time)
+        components.second = 0
+
+        return calendar.nextDate(
+            after: now,
+            matching: components,
+            matchingPolicy: .nextTime,
+            repeatedTimePolicy: .first,
+            direction: .forward
+        )
+    }
+
     var repeatSummary: String {
         if repeatDays.isEmpty {
             return "Never"
@@ -51,7 +64,7 @@ extension Alarm {
     }
 }
 
-struct Alarm: Equatable, Codable, Sendable {
+nonisolated struct Alarm: Equatable, Codable, Sendable {
     var scheduledID: UUID?
     var time: Date
     var isRepeating: Bool

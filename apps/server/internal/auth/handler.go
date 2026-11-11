@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"fmt"
 	"net/http"
 	"net/url"
 
@@ -75,20 +74,9 @@ func (h *Handler) Callback(w http.ResponseWriter, r *http.Request) {
 		}.Encode(),
 	}
 
-	// if h.config.Environment == "development" {
-	// 	httpx.JSON(w, http.StatusAccepted, token)
-	// 	http.Redirect(
-	// 		w,
-	// 		r,
-	// 		callbackUrl.String(),
-	// 		http.StatusFound,
-	// 	)
-	// 	return
-	// }
-	
-	fmt.Print("-------------------JWT----------------", "\n")
-	fmt.Print(token, "\n")
-	fmt.Print("-------------------end JWT----------------", "\n")
+	print("------------------------JWT-----------------------", "\n")
+	print(token, "\n")
+	print("------------------------JWT-----------------------", "\n")
 
 	http.Redirect(
 		w,

@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct AppBlockingPermission: View {
+    var showsBackground = true
     var title: String
     var description: String
 
@@ -38,6 +39,7 @@ struct AppBlockingPermission: View {
             tint: .orange,
             title: title,
             description: description,
+            showsBackground: showsBackground,
             primaryActionTitle: primaryActionTitle,
             secondaryActionTitle: secondaryActionTitle,
             isPrimaryActionEnabled: isPrimaryActionEnabled,

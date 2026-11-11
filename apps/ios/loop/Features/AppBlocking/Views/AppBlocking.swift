@@ -8,130 +8,74 @@ import SwiftUI
 import FamilyControls
 import ComposableArchitecture
 
-#if targetEnvironment(simulator)
-private let appBlockingService: AppBlockingPort = _AppBlockingService()
-#else
-private let appBlockingService: AppBlockingPort = _AppBlockingService()
-#endif
+struct AppBlockingView<Heading: View>: View {
+    @Bindable var store: StoreOf<AppBlockingProvider>
+    @ViewBuilder var heading: () -> Heading
 
-struct AppBlockingView: View {
-    let store: StoreOf<OnboardingProvider>
-    private let restorationError: String?
-
-    @State private var selection: FamilyActivitySelection
-
-    init(store: StoreOf<OnboardingProvider>) {
-        self.store = store
-
-        do {
-            if let saved = store.draft.distractingApps.first {
-                let restored = try JSONDecoder().decode(
-                    FamilyActivitySelection.self,
-                    from: saved.encodedSelection
-                )
-                _selection = State(initialValue: restored)
-            } else {
-                _selection = State(initialValue: FamilyActivitySelection())
-            }
-            restorationError = nil
-            
-        } catch {
-            _selection = State(initialValue: FamilyActivitySelection())
-            restorationError = "Could not restore selected apps: \(error.localizedDescription)"
-        }
-    }
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
 
     var body: some View {
         VStack(spacing: DesignSystem.Spacing.md) {
-            switch store.appsAuthorizationStatus {
+            switch store.authorizationStatus {
 
-            case .unknown:
+            case .authorized:
+                VStack(alignment: .leading, spacing: DesignSystem.Spacing.lg) {
+                    heading()
+
+                    FamilyActivityPicker(selection: $store.selection.sending(\.selectionChanged))
+                        .scrollContentBackground(.hidden)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .mask {
+                            if reduceTransparency {
+                                Rectangle()
+                            } else {
+                                VStack(spacing: 0) {
+                                    LinearGradient(
+                                        colors: [.clear, .black],
+                                        startPoint: .top,
+                                        endPoint: .bottom
+                                    )
+                                    .frame(height: DesignSystem.Spacing.lg)
+
+                                    Rectangle()
+
+                                    LinearGradient(
+                                        colors: [.black, .clear],
+                                        startPoint: .top,
+                                        endPoint: .bottom
+                                    )
+                                    .frame(height: DesignSystem.Spacing.lg)
+                                }
+                            }
+                        }
+                        .background(DesignSystem.Semantic.backgroundPrimary)
+                        .padding(.horizontal, -DesignSystem.Spacing.lg)
+                }
+
+            case .unknown, .requesting, .denied:
+                Spacer()
+                
                 AppBlockingPermission(
+                    showsBackground: false,
                     title: "Protect your focus",
                     description: "Loop needs permission to restrict distracting apps during a focus session.",
                     primaryActionTitle: "Enable App Blocking",
                     secondaryActionTitle: "Skip for Now",
-                    primaryAction: {
-                        Task {
-                            await requestAuthorization()
-                        }
-                    },
-                    secondaryAction: {
-                        store.send(.appsPermissionSkipped)
-                    }
+                    isPrimaryActionEnabled: store.authorizationStatus != .requesting,
+                    primaryAction: { store.send(.authorizationRequested) },
+                    secondaryAction: { store.send(.permissionSkipped) }
                 )
+            }
 
-            case .requesting:
-                ProgressView("Requesting permission...")
-
-            case .authorized:
-                Text("Choose distracting apps")
-                    .font(.title2.bold())
-
-                Text("Select the apps you want Loop to restrict during a focus session.")
+            if let message = store.errorMessage {
+                Text(message)
+                    .font(.callout)
+                    .foregroundStyle(DesignSystem.Palette.danger600)
                     .multilineTextAlignment(.center)
-                    .foregroundStyle(.secondary)
-                
-                
-                FamilyActivityPicker(selection: $selection)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-              
-                VStack(spacing: 4) {
-                    Text("Selected apps: \(selection.applicationTokens.count)")
-                }
-                .foregroundStyle(.secondary)
-
-                if let message = store.appsErrorMessage {
-                    Text(message)
-                        .foregroundStyle(.red)
-                        .multilineTextAlignment(.center)
-                }
-
-                if store.isSavingApps {
-                    ProgressView("Saving selection...")
-                }
-
-            case .denied:
-                AppBlockingPermission(
-                    title: "App blocking is off",
-                    description: store.appsErrorMessage ?? "Family Controls permission is required to restrict distracting apps.",
-                    primaryActionTitle: "Try Again",
-                    secondaryActionTitle: "Skip for Now",
-                    primaryAction: {
-                        Task {
-                            await requestAuthorization()
-                        }
-                    },
-                    secondaryAction: {
-                        store.send(.appsPermissionSkipped)
-                    }
-                )
             }
         }
         .task {
-            if let restorationError {
-                store.send(.appsSelectionSaveFailed(restorationError))
-            }
-        }
-        .onChange(of: selection) { _, newSelection in
-            do {
-                let data = try JSONEncoder().encode(newSelection)
-                let appSelection = AppSelection(encodedSelection: data)
-                store.send(.appsSelectionChanged(appSelection))
-                try appBlockingService.saveSelection(appSelection)
-            } catch {
-                store.send(.appsSelectionSaveFailed(error.localizedDescription))
-            }
-        }
-    }
-
-    private func requestAuthorization() async {
-        store.send(.appsAuthorizationRequested)
-        do {
-            let authorized = try await appBlockingService.requestAuthorization()
-            store.send(.appsAuthorizationSucceeded(authorized))
-        } catch {
-            store.send(.appsAuthorizationFailed(error.localizedDescription))
+            store.send(.task)
         }
     }
 }

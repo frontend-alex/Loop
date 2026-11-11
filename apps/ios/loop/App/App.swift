@@ -18,12 +18,28 @@ struct AppView: View {
             }
 
         case .auth:
-            AuthView(
+            LandingView(
                 store: store.scope(
                     state: \.auth,
                     action: \.auth
                 )
             )
+
+        case .loadingUser:
+            VStack(spacing: DesignSystem.Spacing.md) {
+                if let message = store.userError {
+                    Text(message)
+                        .multilineTextAlignment(.center)
+                    AppButton("Retry") {
+                        store.send(.retryUserFetch)
+                    }
+                } else {
+                    ProgressView("Loading your account…")
+                }
+            }
+            .padding(DesignSystem.Spacing.md)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(DesignSystem.Semantic.backgroundPrimary.ignoresSafeArea())
 
         case .onboarding:
             OnboardingView(
@@ -35,9 +51,11 @@ struct AppView: View {
 
         case .home:
             HomeView(
-                isLoggingOut: store.auth.isLoading,
-                logoutError: store.auth.errorMessage,
-                onLogout: { store.send(.auth(.logout)) }
+                store: store.scope(
+                    state: \.auth,
+                    action: \.auth
+                ),
+                user: store.user
             )
         }
     }

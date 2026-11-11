@@ -3,8 +3,6 @@ package auth
 import (
 	"context"
 	"encoding/json"
-	"errors"
-	"time"
 
 	"loop.com/server/internal/onboarding"
 	platformAuth "loop.com/server/internal/platform/auth"
@@ -30,15 +28,11 @@ func (s *Service) Authenticate(
 	identity userModel.AuthIdentity,
 	user userModel.User,
 ) (string, error) {
-	
+
 	existing, err := s.users.FindFromOAuth(ctx, identity.Provider, identity.ProviderUserID)
 
 	if err == nil {
 		return s.jwt.GenerateToken(existing.ID)
-	}
-
-	if !errors.Is(err, userModel.ErrNotFound) {
-		return "", err
 	}
 
 	err = s.transactions.Run(ctx, func(
@@ -56,9 +50,8 @@ func (s *Service) Authenticate(
 		}
 
 		record := onboarding.Onboarding{
-			UserID:    user.ID,
-			StartedAt: time.Now(),
-			Answers:   make(map[string]json.RawMessage),
+			UserID:  user.ID,
+			Answers: make(map[string]json.RawMessage),
 		}
 
 		if err := onboardings.Create(ctx, &record); err != nil {

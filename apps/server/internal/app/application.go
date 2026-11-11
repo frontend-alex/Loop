@@ -13,19 +13,21 @@ import (
 	"loop.com/server/internal/auth"
 	"loop.com/server/internal/config"
 	"loop.com/server/internal/health"
+	"loop.com/server/internal/onboarding"
 	"loop.com/server/internal/user"
 
 	platformAuth "loop.com/server/internal/platform/auth"
 )
 
 type Application struct {
-	config        config.Config
-	logger        *slog.Logger
-	db            *gorm.DB
-	healthHandler *health.Handler
-	authHandler   *auth.Handler
-	userHandler   *user.Handler
-	jwtService    *platformAuth.JWTService
+	config            config.Config
+	logger            *slog.Logger
+	db                *gorm.DB
+	healthHandler     *health.Handler
+	authHandler       *auth.Handler
+	userHandler       *user.Handler
+	onboardingHandler *onboarding.Handler
+	jwtService        *platformAuth.JWTService
 }
 
 func New(

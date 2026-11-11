@@ -18,12 +18,15 @@ struct AuthProvider {
     }
 
     enum Action: Equatable {
-        case restoreSession
+        case task
         case loginTapped(AuthProviderKind)
-        case registerTapped(AuthProviderKind)
-        case sessionLoaded(AuthSession?)
-        case failed(String)
+        case sessionResolved(AuthSession?)
+        case sessionRestoreFailed
+        case authenticationCancelled
+        case authenticationFailed
         case logout
+        case logoutSucceeded
+        case logoutFailed
         case delegate(Delegate)
 
         enum Delegate: Equatable {
@@ -41,55 +44,95 @@ struct AuthProvider {
     var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
-            case .restoreSession:
-                guard !state.isLoading else { return .none }
-                
+            case .task:
+                guard !state.isLoading, state.session == nil else {
+                    return .none
+                }
+
                 state.isLoading = true
                 state.errorMessage = nil
 
-                return .run { [authTokenStore] send in
-                    let token = try await authTokenStore.load()
-                    await send(.sessionLoaded(token.map(AuthSession.init(token:))))
-                } catch: { error, send in
-                    await send(.failed(error.localizedDescription))
+                return .run { send in
+                    do {
+                        let token = try await authTokenStore.load()
+                        let session = token.map { AuthSession(token: $0) }
+                        await send(.sessionResolved(session))
+                    } catch {
+                        await send(.sessionRestoreFailed)
+                    }
                 }
 
-            case let .loginTapped(provider), let .registerTapped(provider):
-                
-                guard !state.isLoading else { return .none }
+            case let .loginTapped(provider):
+                guard !state.isLoading, state.session == nil else {
+                    return .none
+                }
+
                 state.isLoading = true
                 state.errorMessage = nil
 
-                return .run { [authClient, authTokenStore] send in
-                    let session = try await authClient.authenticate(provider)
-                    try await authTokenStore.save(session.token)
+                return .run { send in
+                    do {
+                        let session = try await authClient.authenticate(provider)
+                        try await authTokenStore.save(session.token)
 
-                    await send(.sessionLoaded(session))
-                } catch: { error, send in
-                    await send(.failed(error.localizedDescription))
+                        await send(.sessionResolved(session))
+                    } catch AuthClientError.authenticationCancelled {
+                        await send(.authenticationCancelled)
+                    } catch {
+                        await send(.authenticationFailed)
+                    }
                 }
 
-            case let .sessionLoaded(session):
+            case let .sessionResolved(session):
                 state.session = session
                 state.isLoading = false
-                return .send(.delegate(session == nil ? .unauthenticated : .authenticated))
+
+                if session == nil {
+                    return .send(.delegate(.unauthenticated))
+                }
+
+                return .send(.delegate(.authenticated))
+
+            case .sessionRestoreFailed:
+                state.isLoading = false
+                state.errorMessage = "Could not read your saved session."
+                return .send(.delegate(.unauthenticated))
+
+            case .authenticationCancelled:
+                state.isLoading = false
+                return .none
+
+            case .authenticationFailed:
+                state.isLoading = false
+                state.errorMessage = "Could not sign in. Please try again."
+                return .none
 
             case .logout:
-                guard !state.isLoading else { return .none }
+                guard !state.isLoading, state.session != nil else {
+                    return .none
+                }
+
                 state.isLoading = true
                 state.errorMessage = nil
 
-                return .run { [authTokenStore] send in
-                    try await authTokenStore.delete()
-                    await send(.sessionLoaded(nil))
-                } catch: { error, send in
-                    await send(.failed(error.localizedDescription))
+                return .run { send in
+                    do {
+                        try await authTokenStore.delete()
+                        await send(.logoutSucceeded)
+                    } catch {
+                        await send(.logoutFailed)
+                    }
                 }
 
-            case let .failed(message):
+            case .logoutSucceeded:
+                state.session = nil
                 state.isLoading = false
-                state.errorMessage = message
-                return state.session == nil ? .send(.delegate(.unauthenticated)) : .none
+                return .send(.delegate(.unauthenticated))
+
+            case .logoutFailed:
+                state.isLoading = false
+                state.errorMessage = "Could not sign out. Please try again."
+                return .none
 
             case .delegate:
                 return .none

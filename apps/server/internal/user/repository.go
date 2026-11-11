@@ -2,7 +2,6 @@ package user
 
 import (
 	"context"
-	"errors"
 	"log/slog"
 
 	"gorm.io/gorm"
@@ -46,9 +45,6 @@ func (r *Repository) FindAuthIdentity(
 		Where("provider = ? AND provider_user_id = ?", provider, providerUserID).
 		First(&identity).Error
 
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, ErrNotFound
-	}
 	if err != nil {
 		return nil, err
 	}
@@ -61,12 +57,23 @@ func (r *Repository) FindById(ctx context.Context, id uint) (*User, error) {
 
 	err := r.db.WithContext(ctx).Where("id = ?", id).First(&user).Error
 
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, ErrNotFound
-	}
 	if err != nil {
 		return nil, err
 	}
 
 	return &user, nil
 }
+
+func (r *Repository) HasCompletedOnboarding(ctx context.Context, userID uint) (bool, error) {
+	var count int64
+
+	err := r.db.WithContext(ctx).
+		Table("onboardings").
+		Where("user_id = ? AND completed_at IS NOT NULL", userID).
+		Count(&count).
+		Error
+
+	return count > 0, err
+}
+
+

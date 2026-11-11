@@ -10,7 +10,18 @@
 		B3C2EF3E302A7BD3009A33D0 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = B3C2EF3D302A7BD3009A33D0 /* ComposableArchitecture */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		A10000000000000000000002 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B389C7A7302A308A0060B10D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B389C7AE302A308A0060B10D;
+			remoteInfo = loop;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		A10000000000000000000003 /* loopTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = loopTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B389C7AF302A308A0060B10D /* loop.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = loop.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B3C2EF40302A7BD3009A33D0 /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
 		B3C2EF41302A7BD3009A33D0 /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
@@ -27,6 +38,11 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		A1000000000000000000000D /* loopTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = loopTests;
+			sourceTree = "<group>";
+		};
 		B389C7B1302A308A0060B10D /* loop */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -38,6 +54,13 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		A10000000000000000000005 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		B389C7AC302A308A0060B10D /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -54,6 +77,7 @@
 			children = (
 				B3C2EF42302A7BD3009A33D0 /* Config */,
 				B389C7B1302A308A0060B10D /* loop */,
+				A1000000000000000000000D /* loopTests */,
 				B389C7B0302A308A0060B10D /* Products */,
 			);
 			sourceTree = "<group>";
@@ -62,6 +86,7 @@
 			isa = PBXGroup;
 			children = (
 				B389C7AF302A308A0060B10D /* loop.app */,
+				A10000000000000000000003 /* loopTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -78,6 +103,26 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		A10000000000000000000006 /* loopTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A10000000000000000000007 /* Build configuration list for PBXNativeTarget "loopTests" */;
+			buildPhases = (
+				A10000000000000000000008 /* Sources */,
+				A10000000000000000000005 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A10000000000000000000009 /* PBXTargetDependency */,
+			);
+			name = loopTests;
+			fileSystemSynchronizedGroups = (
+				A1000000000000000000000D /* loopTests */,
+			);
+			productName = loopTests;
+			productReference = A10000000000000000000003 /* loopTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		B389C7AE302A308A0060B10D /* loop */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = B389C7BA302A308B0060B10D /* Build configuration list for PBXNativeTarget "loop" */;
@@ -111,6 +156,10 @@
 				LastSwiftUpdateCheck = 2660;
 				LastUpgradeCheck = 2660;
 				TargetAttributes = {
+					A10000000000000000000006 = {
+						CreatedOnToolsVersion = 27.2;
+						TestTargetID = B389C7AE302A308A0060B10D;
+					};
 					B389C7AE302A308A0060B10D = {
 						CreatedOnToolsVersion = 26.6;
 					};
@@ -134,6 +183,7 @@
 			projectRoot = "";
 			targets = (
 				B389C7AE302A308A0060B10D /* loop */,
+				A10000000000000000000006 /* loopTests */,
 			);
 		};
 /* End PBXProject section */
@@ -149,6 +199,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		A10000000000000000000008 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		B389C7AB302A308A0060B10D /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -158,7 +215,57 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		A10000000000000000000009 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B389C7AE302A308A0060B10D /* loop */;
+			targetProxy = A10000000000000000000002 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		A1000000000000000000000A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.cicki.loopTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_VERSION = 6.2;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/loop.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/loop";
+			};
+			name = Debug;
+		};
+		A1000000000000000000000B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.cicki.loopTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_VERSION = 6.2;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/loop.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/loop";
+			};
+			name = Release;
+		};
 		B389C7B8302A308B0060B10D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = B3C2EF40302A7BD3009A33D0 /* Debug.xcconfig */;
@@ -365,6 +472,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		A10000000000000000000007 /* Build configuration list for PBXNativeTarget "loopTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A1000000000000000000000A /* Debug */,
+				A1000000000000000000000B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		B389C7AA302A308A0060B10D /* Build configuration list for PBXProject "loop" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
