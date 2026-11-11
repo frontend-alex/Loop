@@ -20,6 +20,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
       - name: Build and run Swift tests
         run: |
@@ -27,4 +29,6 @@ jobs:
             -project apps/ios/loop.xcodeproj \
             -scheme loop \
             -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.5' \
+            -disableAutomaticPackageResolution \
+            -skipMacroValidation \
             CODE_SIGNING_ALLOWED=NO
