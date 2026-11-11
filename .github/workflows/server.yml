@@ -67,12 +67,12 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: snyk test --org=frontend-alex --file=go.mod
 
-  sonarcloud:
-    name: SonarCloud server quality gate
+  sonarqube:
+    name: Sonarqube server quality gate
     if: *trusted_event
     runs-on: ubuntu-latest
     steps:
-      - name: Check SonarCloud configuration
+      - name: Check Sonarqube configuration
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_ORGANIZATION: ${{ vars.SONAR_ORGANIZATION }}
@@ -83,11 +83,14 @@ jobs:
       - name: Checkout repository with full history
         uses: actions/checkout@v7
         with:
-          fetch-depth: 0
-          persist-credentials: false
+          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
+          path: ~/.sonar/cache # caches downloaded analyzer
+          persist-credentials: false # ! belongs to checkout not caching. It prevents checkout from leaving GitHub credentials in Git configuration.
+          key: ${{ runner.os }}-sonar #  identifies the cache.
+          restore-keys: ${{ runner.os }}-sonar # a fallback prefix used to find a cache when the exact key isnt found.
 
-      - name: Analyze Go code and wait for the quality gate
-        uses: SonarSource/sonarqube-scan-action@d209202bc7d53ff1cc128f7f907dac145c9d6ae9 # v8.3.0
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@4d1dc0c91ee400dcf8a6dddf2f705ac36542e304 # v8.4.0
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io
