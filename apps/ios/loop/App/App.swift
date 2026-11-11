@@ -33,6 +33,21 @@ struct AppView: View {
                     AppButton("Retry") {
                         store.send(.retryUserFetch)
                     }
+                    .disabled(store.auth.isLoading)
+
+                    AppButton("Clear token and sign in again", variant: .secondary) {
+                        store.send(.auth(.logout))
+                    }
+                    .disabled(store.auth.isLoading)
+
+                    if store.auth.isLoading {
+                        ProgressView("Clearing saved token…")
+                    }
+                    if let error = store.auth.errorMessage {
+                        Text(error)
+                            .foregroundStyle(.red)
+                            .multilineTextAlignment(.center)
+                    }
                 } else {
                     ProgressView("Loading your account…")
                 }

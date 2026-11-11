@@ -183,10 +183,11 @@ struct AlarmProvider {
                     .cancel(id: CancelID.errorDismissal),
                     .run { [alarm = state.alarm] send in
                         do {
+                            let scheduler = AlarmScheduler()
                             if let oldID = alarm.scheduledID {
-                                try await AlarmScheduler.cancelAlarm(id: oldID)
+                                try await scheduler.cancelAlarm(id: oldID)
                             }
-                            let id = try await AlarmScheduler.setAlarm(at: alarm.time)
+                            let id = try await scheduler.setAlarm(at: alarm.time)
                             await send(.saveSucceeded(id))
                         } catch {
                             await send(.saveFailed(error.localizedDescription))

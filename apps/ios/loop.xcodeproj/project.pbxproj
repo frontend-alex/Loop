@@ -115,10 +115,10 @@
 			dependencies = (
 				A10000000000000000000009 /* PBXTargetDependency */,
 			);
-			name = loopTests;
 			fileSystemSynchronizedGroups = (
 				A1000000000000000000000D /* loopTests */,
 			);
+			name = loopTests;
 			productName = loopTests;
 			productReference = A10000000000000000000003 /* loopTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";

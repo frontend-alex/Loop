@@ -13,7 +13,7 @@ import ActivityKit
 
 struct AlarmKitMetadata: AlarmMetadata {}
 
-nonisolated final class AlarmScheduler: AlarmPort {
+nonisolated final class AlarmScheduler {
     func setAlarm(at date: Date) async throws -> UUID {
     let id = UUID();
     
