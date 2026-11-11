@@ -1,4 +1,4 @@
-name: Backend CI
+name: Server CI
 
 on:
   pull_request:
@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 jobs:
-  backend:
+  server:
     runs-on: ubuntu-latest
 
     defaults:
@@ -27,24 +27,17 @@ jobs:
           go-version-file: apps/server/go.mod
           cache-dependency-path: apps/server/go.sum
 
-      - name: Check formatting
-        run: gofmt -l .
-
-      - name: Download dependencies
-        run: go mod download
-
-      - name: Verify dependencies
-        run: go mod verify
-
-      - name: Run static analysis
-        run: go vet ./...
-
-      - name: Run tests
-        run: go test ./...
+      - name: Validate Server
+        run: |
+          gofmt -l .
+          go mod download
+          go mod verify
+          go vet ./...
+          go test ./...
 
   snyk:
-    name: Snyk backend dependency scan
-    if: >-
+    name: Snyk server dependency scan
+    if: &trusted_event >-
       github.actor != 'dependabot[bot]' &&
       (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-latest
@@ -75,10 +68,8 @@ jobs:
         run: snyk test --org=frontend-alex --file=go.mod
 
   sonarcloud:
-    name: SonarCloud backend quality gate
-    if: >-
-      github.actor != 'dependabot[bot]' &&
-      (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository)
+    name: SonarCloud server quality gate
+    if: *trusted_event
     runs-on: ubuntu-latest
     steps:
       - name: Check SonarCloud configuration
@@ -102,11 +93,4 @@ jobs:
           SONAR_HOST_URL: https://sonarcloud.io
         with:
           projectBaseDir: apps/server
-          args: >-
-            -Dsonar.projectKey=frontend-alex_Loop
-            -Dsonar.organization=${{ vars.SONAR_ORGANIZATION }}
-            -Dsonar.sources=.
-            -Dsonar.exclusions=**/*_test.go
-            -Dsonar.tests=.
-            -Dsonar.test.inclusions=**/*_test.go
-            -Dsonar.qualitygate.wait=true
+          args: -Dsonar.organization=${{ vars.SONAR_ORGANIZATION }}
