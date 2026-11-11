@@ -1,0 +1,30 @@
+name: iOS CI
+
+on:
+  pull_request:
+    branches: [develop, main]
+  push:
+    branches: [develop]
+
+permissions:
+  contents: read
+
+jobs:
+  swift-tests:
+    name: Swift simulator tests
+    runs-on: macos-26
+    timeout-minutes: 30
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.5.app/Contents/Developer
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Build and run Swift tests
+        run: |
+          xcodebuild test \
+            -project apps/ios/loop.xcodeproj \
+            -scheme loop \
+            -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.5' \
+            CODE_SIGNING_ALLOWED=NO
