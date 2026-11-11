@@ -29,6 +29,5 @@ jobs:
             -project apps/ios/loop.xcodeproj \
             -scheme loop \
             -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.5' \
-            -disableAutomaticPackageResolution \
             -skipMacroValidation \
             CODE_SIGNING_ALLOWED=NO
