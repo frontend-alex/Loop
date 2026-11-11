@@ -180,6 +180,52 @@ struct AppProviderTests {
         #expect(deleted.value)
     }
 
+    @Test(arguments: [false, true])
+    func clearingTokenAfterAccountLoadFailure(deleteFails: Bool) async {
+        let deleted = LockIsolated(false)
+        let store = TestStore(initialState: authenticatedState()) {
+            AppProvider(defaults: defaults)
+        } withDependencies: {
+            $0[UserClient.self].fetch = { _ in throw URLError(.notConnectedToInternet) }
+            $0[AuthTokenStore.self].delete = {
+                if deleteFails { throw KeychainError.invalidData }
+                deleted.setValue(true)
+            }
+        }
+
+        await store.send(.auth(.delegate(.authenticated))) { $0.route = .loadingUser }
+        await store.receive(.userFetchFailed) {
+            $0.userError = "Could not load your account. Please retry."
+        }
+        await store.send(.auth(.logout)) { $0.auth.isLoading = true }
+
+        if deleteFails {
+            await store.receive(.auth(.logoutFailed)) {
+                $0.auth.isLoading = false
+                $0.auth.errorMessage = "Could not sign out. Please try again."
+            }
+            #expect(store.state.route == .loadingUser)
+            #expect(store.state.auth.session?.token == "session-token")
+            #expect(store.state.userError != nil)
+            #expect(!deleted.value)
+        } else {
+            await store.receive(.auth(.logoutSucceeded)) {
+                $0.auth.session = nil
+                $0.auth.isLoading = false
+            }
+            // Resetting onboarding creates a fresh default alarm timestamp.
+            await store.withExhaustivity(.off) {
+                await store.receive(.auth(.delegate(.unauthenticated))) {
+                    $0.route = .auth
+                    $0.userError = nil
+                }
+            }
+            #expect(store.state.auth.session == nil)
+            #expect(store.state.user == nil)
+            #expect(deleted.value)
+        }
+    }
+
     @Test func failedLogoutPreservesTheSessionAndRoute() async {
         var state = authenticatedState()
         state.route = .home

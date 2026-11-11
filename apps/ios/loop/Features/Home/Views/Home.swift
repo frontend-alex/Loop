@@ -5,15 +5,12 @@
 //  Created by Aleksander Ivanov on 10/08/2026.
 //
 import SwiftUI
+import ComposableArchitecture
 
 struct HomeView: View {
     let store: StoreOf<AuthProvider>
     let user: User?
     
-    let isLoggingOut: Bool
-    let logoutError: String?
-    let onLogout: () -> Void
-
     var body: some View {
         Form {
             Section("User") {
