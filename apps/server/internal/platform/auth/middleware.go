@@ -12,7 +12,6 @@ type UserIDKey struct{}
 
 func UserIDFromContext(ctx context.Context) (uint, bool) {
 	userID, ok := ctx.Value(UserIDKey{}).(uint)
-
 	return userID, ok
 }
 

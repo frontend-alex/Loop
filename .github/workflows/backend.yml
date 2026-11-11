@@ -18,15 +18,26 @@ jobs:
         working-directory: apps/server
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v7
 
-      - uses: actions/setup-go@v5
+      - name: Set up Go
+        uses: actions/setup-go@v7
         with:
           go-version-file: apps/server/go.mod
           cache-dependency-path: apps/server/go.sum
 
-      - name: Test backend
-        run: go test ./...
+      - name: Check formatting
+        run: gofmt -l .
 
-      - name: Build backend
-        run: go build -o /tmp/api ./cmd/api
+      - name: Download dependencies
+        run: go mod download
+
+      - name: Verify dependencies
+        run: go mod verify
+
+      - name: Run static analysis
+        run: go vet ./...
+
+      - name: Run tests
+        run: go test ./...
