@@ -1,0 +1,64 @@
+name: iOS CI
+
+on:
+  pull_request:
+    branches: [develop, main]
+  push:
+    branches: [develop]
+
+concurrency:
+  group: ios-ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  swift-tests:
+    name: Swift simulator tests
+    runs-on: macos-26
+    timeout-minutes: 30
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.5.app/Contents/Developer
+      SIMULATOR_DESTINATION: platform=iOS Simulator,name=iPhone 17,OS=26.5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Cache Swift packages and Xcode compilations
+        uses: actions/cache@v5
+        with:
+          path: |
+            ${{ runner.temp }}/loop-source-packages
+            ~/Library/Developer/Xcode/DerivedData/CompilationCache.noindex
+          key: ios-xcode-26.5-${{ runner.arch }}-v1-${{ hashFiles('apps/ios/**/Package.resolved', 'apps/ios/loop.xcodeproj/project.pbxproj') }}
+
+      - name: Build Swift tests for ARM64
+        run: |
+          xcodebuild build-for-testing \
+            -project apps/ios/loop.xcodeproj \
+            -scheme loop \
+            -destination "$SIMULATOR_DESTINATION" \
+            -clonedSourcePackagesDirPath "$RUNNER_TEMP/loop-source-packages" \
+            -skipMacroValidation \
+            -showBuildTimingSummary \
+            ARCHS=arm64 \
+            ONLY_ACTIVE_ARCH=YES \
+            CODE_SIGNING_ALLOWED=NO \
+            COMPILER_INDEX_STORE_ENABLE=NO \
+            COMPILATION_CACHE_ENABLE_CACHING=YES
+
+      - name: Run Swift tests on the simulator
+        run: |
+          xcodebuild test-without-building \
+            -project apps/ios/loop.xcodeproj \
+            -scheme loop \
+            -destination "$SIMULATOR_DESTINATION" \
+            -clonedSourcePackagesDirPath "$RUNNER_TEMP/loop-source-packages" \
+            -skipMacroValidation \
+            ARCHS=arm64 \
+            ONLY_ACTIVE_ARCH=YES \
+            CODE_SIGNING_ALLOWED=NO
