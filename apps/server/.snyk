@@ -1,0 +1,10 @@
+version: v1.25.0
+
+ignore:
+  SNYK-GOLANG-GITHUBCOMGOCHICHIV5MIDDLEWARE-22382482:
+    - '*':
+        reason: >-
+          The server does not use middleware.RedirectSlashes,
+          which is required to trigger this vulnerability.
+          Review when a patch becomes available or routing changes.
+        expires: '2026-11-26T00:00:00.000Z'

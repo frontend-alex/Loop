@@ -1,9 +1,9 @@
 module loop.com/server
 
-go 1.27.1
+go 1.27.3
 
 require (
-	github.com/go-chi/chi/v5 v5.3.2
+	github.com/go-chi/chi/v5 v5.5.0
 	github.com/gorilla/sessions v1.4.0
 	github.com/markbates/goth v1.82.0
 	gorm.io/driver/postgres v1.6.3

@@ -1,4 +1,4 @@
-name: Backend CI
+name: Server CI
 
 on:
   pull_request:
@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 jobs:
-  backend:
+  server:
     runs-on: ubuntu-latest
 
     defaults:
@@ -27,24 +27,17 @@ jobs:
           go-version-file: apps/server/go.mod
           cache-dependency-path: apps/server/go.sum
 
-      - name: Check formatting
-        run: gofmt -l .
-
-      - name: Download dependencies
-        run: go mod download
-
-      - name: Verify dependencies
-        run: go mod verify
-
-      - name: Run static analysis
-        run: go vet ./...
-
-      - name: Run tests
-        run: go test ./...
+      - name: Validate Server
+        run: |
+          gofmt -l .
+          go mod download
+          go mod verify
+          go vet ./...
+          go test ./...
 
   snyk:
-    name: Snyk backend dependency scan
-    if: >-
+    name: Snyk server dependency scan
+    if: &trusted_event >-
       github.actor != 'dependabot[bot]' &&
       (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-latest
@@ -74,14 +67,12 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: snyk test --org=frontend-alex --file=go.mod
 
-  sonarcloud:
-    name: SonarCloud backend quality gate
-    if: >-
-      github.actor != 'dependabot[bot]' &&
-      (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository)
+  sonarqube:
+    name: Sonarqube server quality gate
+    if: *trusted_event
     runs-on: ubuntu-latest
     steps:
-      - name: Check SonarCloud configuration
+      - name: Check Sonarqube configuration
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_ORGANIZATION: ${{ vars.SONAR_ORGANIZATION }}
@@ -92,21 +83,21 @@ jobs:
       - name: Checkout repository with full history
         uses: actions/checkout@v7
         with:
-          fetch-depth: 0
-          persist-credentials: false
+          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
+          persist-credentials: false  # ! belongs to checkout not caching. It prevents checkout from leaving GitHub credentials in Git configuration.
 
-      - name: Analyze Go code and wait for the quality gate
-        uses: SonarSource/sonarqube-scan-action@d209202bc7d53ff1cc128f7f907dac145c9d6ae9 # v8.3.0
+      - name: Cache Sonar analyzers
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache # caches downloaded analyzer
+          key: ${{ runner.os }}-sonar #  identifies the cache.
+          restore-keys: ${{ runner.os }}-sonar # a fallback prefix used to find a cache when the exact key isnt found.
+
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@4d1dc0c91ee400dcf8a6dddf2f705ac36542e304 # v8.4.0
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io
         with:
           projectBaseDir: apps/server
-          args: >-
-            -Dsonar.projectKey=frontend-alex_Loop
-            -Dsonar.organization=${{ vars.SONAR_ORGANIZATION }}
-            -Dsonar.sources=.
-            -Dsonar.exclusions=**/*_test.go
-            -Dsonar.tests=.
-            -Dsonar.test.inclusions=**/*_test.go
-            -Dsonar.qualitygate.wait=true
+          args: -Dsonar.organization=${{ vars.SONAR_ORGANIZATION }}
