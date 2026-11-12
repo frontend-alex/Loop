@@ -1,5 +1,25 @@
 # Server Notes
 
+## Docker development image
+
+Build from this directory with `docker build -t go-server .`, or use `make image`.
+The image runs Air as the non-root `loop` user (UID/GID 10001) and copies only
+the Go module files, source, API specification, and Air configuration. Local
+environment files, private keys, and build artifacts are excluded from the build
+context. Supply runtime configuration with `--env-file .env`; do not bake it into
+the image.
+
+The Makefile bind-mounts this directory at `/app` for hot reload. On Linux, the
+mounted directory (including `tmp/`) must be writable by UID/GID 10001. If needed,
+pass `--user "$(id -u):$(id -g)" --env HOME=/tmp --env GOCACHE=/tmp/go-build` to
+`docker run` or `docker create` to use the host user's permissions instead. The
+bind mount is not filtered by `.dockerignore` and exposes local files to the
+container, so keep it limited to trusted local development.
+
+This is a development image, not a minimal production runtime. Keep the Go image
+version aligned with `go.mod` and update the pinned Air commit deliberately.
+The Dockerfile comment records the corresponding Air release.
+
 ## Observations
 
 - Code is grouped by feature under `internal/`.

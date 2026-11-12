@@ -1,0 +1,13 @@
+.git
+**/.git
+**/.DS_Store
+**/.env
+**/.env.*
+**/*.pem
+**/*.key
+**/*.p12
+**/*.pfx
+bin/
+tmp/
+**/*.test
+**/coverage.out
