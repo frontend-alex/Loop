@@ -1,0 +1,56 @@
+Loop backend QA execution summary — 12 November 2026
+
+This is a concise summary of observed command output, not the complete raw log.
+Environment: Go 1.27.3 darwin/arm64; Docker Desktop; PostgreSQL 17-alpine via Testcontainers.
+
+Command: go vet ./...
+Exit status: 0
+Output: no diagnostics
+
+Command: go mod verify
+Exit status: 0
+Output: all modules verified
+
+Command: go test -race -v -count=1 ./...
+Exit status: 0
+PASS TestAuthenticateCreatesAccountAndOnboarding
+PASS TestAuthenticateRollsBackWhenOnboardingFails
+PASS TestReturningUserKeepsAccountAndOnboarding
+PASS TestCompleteOnboardingOnlyChangesAuthenticatedUser
+PASS TestCompleteOnboardingWithoutAuthentication (clean committed-tree retests only)
+PASS TestValidTokenContainsCorrectUser
+PASS TestAuthenticationMiddleware/missing_token
+PASS TestAuthenticationMiddleware/malformed_token
+PASS TestAuthenticationMiddleware/wrong_signing_key
+PASS TestAuthenticationMiddleware/expired_token
+PASS TestAuthenticationMiddleware/valid_token
+PASS TestAuthenticationMiddleware
+No race reports were emitted.
+Other backend packages reported [no test files]; that is not behavioral coverage.
+
+Formatting check: gofmt -l on the four QA test files and internal/testutil
+Exit status: 0; no filenames returned.
+
+Revision note: initial execution used the feature/auth-testing working tree above cf6ec7d.
+Clean git-archive verification repeated go test -race -v -count=1 ./... and go vet ./...
+successfully for commits 30ef3a1 and d6167a2, including the retained existing handler test.
+Final clean git-archive verification at 56438fa9106a5e95c58df8a0724702c1113c21c6:
+go test -race -v -count=1 ./... — exit 0
+go vet ./... — exit 0
+go mod verify — exit 0; all modules verified
+
+PR: https://github.com/frontend-alex/Loop/pull/21
+Initial CI: https://github.com/frontend-alex/Loop/actions/runs/43281034949
+Server validation passed; Snyk and Sonar failed.
+Dependency fix: d6167a233fe97ac9acf2f275e4c5d1b30fe8ea8a
+Retest: https://github.com/frontend-alex/Loop/actions/runs/43281431101
+Server validation and Snyk passed; Sonar failed.
+Test-helper classification fix: 56438fa9106a5e95c58df8a0724702c1113c21c6
+Final CI: https://github.com/frontend-alex/Loop/actions/runs/43282109932 — completed, conclusion success.
+Verified head SHA: 56438fa9106a5e95c58df8a0724702c1113c21c6
+server — success (job 131405814052)
+Snyk server dependency scan — success (job 131405814653)
+Sonarqube server quality gate — success (job 131405814562)
+CI ran go test ./...; the -race execution above was local, not CI.
+Separate iOS workflow failed; no globally green PR or iOS pass is claimed.
+Human review and manual Google sign-in remain pending.
