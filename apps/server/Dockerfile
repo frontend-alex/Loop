@@ -11,7 +11,8 @@ ENV GOTOOLCHAIN=local
 
 #/usr/local/bin is the place where we install the air dependacny 
 # Install air before switching users because * /usr/local/bin * is a sys dir that user should not modify
-RUN GOBIN=/usr/local/bin go install github.com/air-verse/air@v1.67.4
+# Air v1.67.4: pin the release commit rather than a movable tag.
+RUN GOBIN=/usr/local/bin go install github.com/air-verse/air@9f19e52511f7bb697036e6ee2c12a212e742199d
 
 #Preparing an ordinary user withouth root privileges
 RUN addgroup -S -g 10001 loop \

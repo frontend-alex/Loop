@@ -17,7 +17,8 @@ bind mount is not filtered by `.dockerignore` and exposes local files to the
 container, so keep it limited to trusted local development.
 
 This is a development image, not a minimal production runtime. Keep the Go image
-version aligned with `go.mod` and update the pinned Air version deliberately.
+version aligned with `go.mod` and update the pinned Air commit deliberately.
+The Dockerfile comment records the corresponding Air release.
 
 ## Observations
 
