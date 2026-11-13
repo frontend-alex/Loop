@@ -1,0 +1,38 @@
+name: Production Release
+
+on:
+  pull_request:
+    branches: [main]
+    types: [closed]
+
+jobs:
+  deploy:
+    # Deploy to production only after this repo's develop branch is merged into main.
+    if: >-
+      vars.PRODUCTION_ENABLED == 'true' &&
+      github.event.pull_request.merged &&
+      github.event.pull_request.head.ref == 'develop' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+
+
+    runs-on: ubuntu-latest
+    environment: production
+    concurrency: loop-production
+    permissions:
+      contents: read
+      actions: read # 
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
+
+      - name: Verify and deploy the approved image
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_HEAD: ${{ github.event.pull_request.head.sha }}
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: sh scripts/deploy.sh

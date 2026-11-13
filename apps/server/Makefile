@@ -9,7 +9,7 @@ POSTGRES_PASSWORD ?= root
 POSTGRES_CONTAINER ?= go-postgres
 
 # if this func exists we ensure that it will run the make function we have created
-.PHONY: image container start run delete-image delete-container db-image db-run
+.PHONY: image container start run db-run
 
 network:
 	docker network inspect "$(NETWORK_NAME)" >/dev/null 2>&1 || \
@@ -22,16 +22,13 @@ image:
 
 
 # -v  mounts a directory from your computer into the container.
-container: image
-	docker create \
-		--env-file "$(CURDIR)/.env" \
-		-p "$(PORT):$(PORT)" \
-		-v "$(CURDIR):/app" \
-		--name "$(CONTAINER_NAME)" \
-		"$(IMAGE_NAME)"
-
-start:
-	docker start "$(CONTAINER_NAME)"
+# container: image
+# 	docker create \
+# 		--env-file "$(CURDIR)/.env" \
+# 		-p "$(PORT):$(PORT)" \
+# 		-v "$(CURDIR):/app" \
+# 		--name "$(CONTAINER_NAME)" \
+# 		"$(IMAGE_NAME)"
 
 
 run: image db-run
@@ -43,20 +40,11 @@ run: image db-run
 		--name "$(CONTAINER_NAME)" \
 		"$(IMAGE_NAME)"
 
-delete-image: 
-	docker image rm $(IMAGE_NAME)
-
-delete-container:
-	docker rm -f "$(CONTAINER_NAME)"
 
 #-------------------------Backend-----------------------#
 
 
 #-------------------------Db----------------------------#
-db-image:
-	docker pull postgres
-
-
 # TODO starts PostgreSQL with --rm and no named persistent volume. The running database uses an anonymous volume, which Docker removes when that container exits.
 db-run: network
 	docker run --rm \
