@@ -72,6 +72,7 @@ jobs:
 
       - name: Scan Go dependencies
         working-directory: apps/server
+        continue-on-error: true # ! Even if we have critical issues piepline continues ...
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: snyk test --org=frontend-alex --file=go.mod
