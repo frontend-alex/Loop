@@ -1,4 +1,7 @@
 APP_ENV = development
+// The simulator shares the Mac's network, so localhost is the Mac. A physical iPhone needs
+// the Mac's Bonjour name instead (System Settings > General > Sharing > Local hostname);
+// both must be on the same Wi-Fi. A raw IP like 192.168.x.x breaks whenever the network changes.
 API_BASE_URL = http:/$()/localhost:8080/api/v1
-//API_BASE_URL = http:/$()/192.168.2.9:8080/api/v1
-AUTH_TOKEN = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3OTQ0MTY5MTYsInVzZXJfaWQiOjF9.EeGZZofNe5hYCvUhdou1zw6kHzYkRWSDDVHZ22llDEg
+API_BASE_URL[sdk=iphoneos*] = http:/$()/Korab-Cic.local:8080/api/v1
+AUTH_TOKEN = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3OTU3NzkwMTIsInVzZXJfaWQiOjF9.XXZhwqiJMIFOFRnHND-tcqHg7SXsbrjB8heqK00R2jY

@@ -21,5 +21,12 @@
 	</array>
 	<key>NSAlarmKitUsageDescription</key>
 	<string>Loop uses alarms to wake you and start your Morning Lock session.</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Loop connects to your development server on the local network.</string>
 </dict>
 </plist>
