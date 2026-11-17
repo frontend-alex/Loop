@@ -12,13 +12,11 @@ import (
 
 type Handler struct {
 	service *Service
-	// config  config.Config
 }
 
 func NewHandler(service *Service) *Handler {
 	return &Handler{
 		service: service,
-		// config:  config,
 	}
 }
 

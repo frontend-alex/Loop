@@ -1,5 +1,8 @@
 # Server Notes
 
+
+# \pset format wrapped 
+
 ## Docker development image
 
 Build from this directory with `docker build -t go-server .`, or use `make image`.

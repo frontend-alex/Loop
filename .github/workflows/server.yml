@@ -44,6 +44,7 @@ jobs:
         # TODO fix later... attaching coverage.out since sonarqubes coverage is at 0 and does not pick up the tests?
         
   snyk:
+    # Snyk runs in parallel because it scans dependencies without needing test results, but publishing still waits for it to pass.
     name: Snyk server dependency scan
     if: &trusted_event >-
       github.actor != 'dependabot[bot]' &&
