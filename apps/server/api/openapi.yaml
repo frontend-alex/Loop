@@ -7,13 +7,17 @@ info:
 
     To access protected endpoints, use Authorize and enter a JWT obtained from
     the browser-based OAuth flow. Swagger UI sends it as a Bearer token in the
-    Authorization header. OAuth login endpoints are not documented here.
+    Authorization header. Start login by opening /api/v1/auth/{provider} in a
+    browser. After authentication, the callback redirects to
+    loop://auth/callback?token=<JWT>; use that token to authorize API requests.
 servers:
   - url: /
     description: Same server as the documentation
 tags:
   - name: Health
     description: Server liveness and database readiness checks.
+  - name: Authentication
+    description: Browser-based OAuth login and provider callbacks. No Bearer token required.
   - name: Users
     description: Authenticated user information.
   - name: Onboarding
@@ -47,6 +51,101 @@ paths:
               schema:
                 type: string
               example: "database unavailable\n"
+  /api/v1/auth/{provider}:
+    get:
+      operationId: beginAuthentication
+      tags:
+        - Authentication
+      summary: Start OAuth login
+      description: |
+        Open this URL in a browser to sign in with a configured provider.
+        Sets the _gothic_session cookie and redirects to the provider's
+        authorization page. Keep the cookie for the callback request.
+        Use browser navigation rather than Swagger UI's Try it out, since this
+        flow follows external redirects and returns to the app via a deep link.
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/AuthProvider'
+      responses:
+        '307':
+          description: Redirect to the provider's authorization page.
+          headers:
+            Location:
+              description: Provider authorization URL, including the OAuth state.
+              schema:
+                type: string
+                format: uri
+            Set-Cookie:
+              description: OAuth session cookie required by the callback.
+              schema:
+                type: string
+        '400':
+          description: The provider is unavailable or the OAuth session could not be started.
+          content:
+            text/plain:
+              schema:
+                type: string
+  /api/v1/auth/{provider}/callback:
+    get:
+      operationId: completeAuthentication
+      tags:
+        - Authentication
+      summary: Complete OAuth login
+      description: |
+        Provider redirect target, not a standalone login endpoint. Requires the
+        _gothic_session cookie from the login request and the provider's callback
+        parameters. The state must match the original OAuth session.
+        On success, finds or creates the user, issues a JWT, and redirects to
+        loop://auth/callback?token=<JWT>. No JSON token response is returned.
+        Configure the provider's callback URL to this API route.
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/AuthProvider'
+        - name: code
+          in: query
+          description: Authorization code returned by the provider after successful consent.
+          schema:
+            type: string
+        - name: state
+          in: query
+          description: OAuth state returned by the provider; must match the login session.
+          schema:
+            type: string
+        - name: error
+          in: query
+          description: Provider error returned instead of an authorization code when login fails.
+          schema:
+            type: string
+      responses:
+        '302':
+          description: Authentication succeeded. Redirect to the app with the JWT.
+          headers:
+            Location:
+              description: App deep link containing the JWT in the token query parameter.
+              schema:
+                type: string
+                format: uri
+                example: 'loop://auth/callback?token=eyJ...'
+        '401':
+          description: Provider authentication failed, the session is missing or invalid, or state does not match.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error:
+                  code: authentication_failed
+                  message: state token mismatch
+        '500':
+          description: The user could not be authenticated locally or a JWT could not be issued.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error:
+                  code: authentication_failed
+                  message: Could not authenticate user
   /api/v1/users/me:
     get:
       operationId: getCurrentUser
@@ -234,6 +333,16 @@ paths:
         '500':
           $ref: '#/components/responses/OnboardingFailure'
 components:
+  parameters:
+    AuthProvider:
+      name: provider
+      in: path
+      required: true
+      description: OAuth provider name. The provider must be configured on the server.
+      schema:
+        type: string
+        enum: [google, apple]
+        example: google
   securitySchemes:
     bearerAuth:
       type: http
