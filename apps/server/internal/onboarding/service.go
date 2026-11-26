@@ -15,6 +15,9 @@ func NewService(repo *Repository) *Service {
 }
 
 func (s *Service) UpdateOnboarding(ctx context.Context, userID uint, data OnboardingRequest) error {
+	if err := validateRequest(data, false); err != nil {
+		return err
+	}
 	return s.repo.Update(
 		ctx,
 		userID,
@@ -24,6 +27,9 @@ func (s *Service) UpdateOnboarding(ctx context.Context, userID uint, data Onboar
 }
 
 func (s *Service) CompleteOnboarding(ctx context.Context, userID uint, data OnboardingRequest) error {
+	if err := validateRequest(data, true); err != nil {
+		return err
+	}
 	return s.repo.Complete(
 		ctx,
 		userID,

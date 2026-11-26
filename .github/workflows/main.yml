@@ -27,10 +27,33 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.merge_commit_sha }}
 
-      - name: Verify and deploy the approved image
+      - name: Select the staging-approved image
+        id: approved
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -eu
+          # Find the successful staging workflow for the exact merged commit.
+          run_id=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow server.yml \
+            --branch develop --commit "$RELEASE_HEAD" --event push --status success \
+            --limit 100 --json databaseId --jq '.[0].databaseId // empty')
+          if [ -z "$run_id" ]; then
+            echo "No successful staging workflow for this commit" >&2
+            exit 1
+          fi
+
+          # Only its approved artifact may supply the production image.
+          attempt=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$run_id" --jq '.run_attempt')
+          gh run download "$run_id" --repo "$GITHUB_REPOSITORY" \
+            --name "approved-image-$attempt" --dir "$RUNNER_TEMP/approved-image"
+          image=$(cat "$RUNNER_TEMP/approved-image/approved-image.txt")
+          case "$image" in ''|*[!a-z0-9._/@:-]*) echo "Invalid approved image" >&2; exit 1;; esac
+          printf 'image=%s\n' "$image" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy the approved image
+        env:
+          BACKEND_IMAGE: ${{ steps.approved.outputs.image }}
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
           DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}

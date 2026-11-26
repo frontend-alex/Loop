@@ -3,9 +3,17 @@ import SwiftUI
 
 @main
 struct LoopApp: App {
+    @Dependency(\.context) private var context
+
     var body: some Scene {
         WindowGroup {
-            AppView(store: Store(initialState: AppFeature.State()) { AppFeature() })
+            if context == .test {
+                // Unit tests create their own stores. The host must not start live
+                // authentication, keychain, or networking effects at launch.
+                Color.clear
+            } else {
+                AppView(store: Store(initialState: AppFeature.State()) { AppFeature() })
+            }
         }
     }
 }

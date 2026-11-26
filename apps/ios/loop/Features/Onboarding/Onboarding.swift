@@ -104,7 +104,8 @@ nonisolated enum QuestionAnswer: Equatable, Codable, Sendable {
     case time(Date)
 }
 
-/// A morning challenge the user can be given. Placeholder list until the backend provides it.
+/// A morning challenge the user can be given. Only tasks the phone can verify:
+/// steps (Core Motion pedometer), squats (accelerometer, phone in hand) and in-app puzzles.
 nonisolated struct WakeUpTask: Identifiable, Equatable, Sendable {
     let id: String
     let title: String
@@ -113,12 +114,9 @@ nonisolated struct WakeUpTask: Identifiable, Equatable, Sendable {
     let icon: String
 
     static let all: [WakeUpTask] = [
-        WakeUpTask(id: "stretch", title: "Timed Stretch", detail: "2 min", icon: "TaskStretch"),
+        WakeUpTask(id: "get-up", title: "Get Up", detail: "Walk 20 steps", icon: "TaskGetUp"),
         WakeUpTask(id: "walk", title: "Walk", detail: "300 steps", icon: "TaskWalk"),
-        WakeUpTask(id: "get-up", title: "Get Up", detail: "Stand, then confirm", icon: "TaskGetUp"),
-        WakeUpTask(id: "mental", title: "Mental Start", detail: "5 puzzles", icon: "TaskMental"),
-        WakeUpTask(id: "body", title: "Body Start", detail: "20 squats", icon: "TaskBody"),
-        WakeUpTask(id: "mobility", title: "Morning Mobility", detail: "5 moves", icon: "TaskMobility"),
-        WakeUpTask(id: "brain-body", title: "Brain and Body", detail: "Puzzle, then 15 squats", icon: "TaskBrainBody")
+        WakeUpTask(id: "body", title: "Body Start", detail: "20 squats, phone in hand", icon: "TaskBody"),
+        WakeUpTask(id: "mental", title: "Mental Start", detail: "5 puzzles", icon: "TaskMental")
     ]
 }

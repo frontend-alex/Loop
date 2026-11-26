@@ -113,6 +113,8 @@ func (h *Handler) CompleteOnboarding(w http.ResponseWriter, r *http.Request) {
 
 func writeOnboardingError(w http.ResponseWriter, err error) {
 	switch {
+	case errors.Is(err, ErrInvalidRequest):
+		httpx.Error(w, http.StatusBadRequest, "invalid_onboarding_data", err.Error())
 	case errors.Is(err, gorm.ErrRecordNotFound):
 		httpx.Error(w, http.StatusNotFound, "onboarding_not_found", "Onboarding not found")
 	case errors.Is(err, ErrAlreadyCompleted):

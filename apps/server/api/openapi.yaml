@@ -193,15 +193,18 @@ paths:
         is identified by the Bearer token; do not send a user ID or timestamps.
 
         The examples use the question IDs and choices from
-        apps/ios/loop/Features/Onboarding/Models/Onboarding.swift. Synthesized
+        apps/ios/loop/Features/Onboarding/Onboarding.swift. Synthesized
         QuestionAnswer Codable values use single/multiple/time objects with an
         unlabeled associated value named _0. With the default JSONEncoder,
         Date is seconds since 2001-01-01T00:00:00Z, not Unix time or an ISO string.
 
         Replaces the entire saved answer snapshot, rather than merging it.
         Drafts may omit unanswered questions or send answers: {} to clear them.
-        Answers are stored as submitted, without questionnaire or step validation.
-        Step numbering is client-defined, so example values are illustrative.
+        Submitted answers must match one supported questionnaire: current stable
+        option IDs or the released legacy questionnaire. Unknown IDs, mixed
+        questionnaires, invalid options and malformed enum payloads return 400
+        invalid_onboarding_data. Partial/empty drafts are allowed. currentStep
+        is 0–8 (five question pages, alarm, apps, tasks, then summary).
         Completed onboarding rejects draft saves.
       security:
         - bearerAuth: []
@@ -213,7 +216,7 @@ paths:
               $ref: '#/components/schemas/OnboardingRequest'
             examples:
               partialDraft:
-                summary: Draft with the first two question answers
+                summary: Backward-compatible draft from the released legacy client
                 value:
                   currentStep: 2
                   answers:
@@ -226,33 +229,29 @@ paths:
                           - Social media
                           - Messages
               allQuestionAnswers:
-                summary: All five iOS question answers
+                summary: All five current iOS question answers
                 description: |
-                  The wake-time value represents 2026-11-09T07:00:00Z using
+                  The workday-wake-time value represents 2026-11-09T07:00:00Z using
                   Swift's default Date encoding. It is an example instant,
                   not an agreed recurring wake-time/timezone contract.
                 value:
-                  currentStep: 4
+                  currentStep: 8
                   answers:
-                    focus:
+                    morning-goal:
                       single:
-                        _0: High
-                    distractions:
-                      multiple:
-                        _0:
-                          - Social media
-                          - Messages
-                    wake-time:
+                        _0: build-routine
+                    workday-wake-time:
                       time:
                         _0: 815900400
-                    goals:
-                      multiple:
-                        _0:
-                          - Focus
-                          - Exercise
-                    experience:
+                    waking-style:
                       single:
-                        _0: Beginner
+                        _0: first-alarm
+                    first-phone-use:
+                      single:
+                        _0: within-10-min
+                    morning-time-available:
+                      single:
+                        _0: 15-30-min
       responses:
         '204':
           description: Draft answers and current step saved. No response body.
@@ -280,8 +279,10 @@ paths:
         Send the final answers and currentStep together, without a data envelope.
         Uses the same OnboardingRequest schema as Update. Saves answers,
         currentStep, and server-generated CompletedAt atomically. A prior draft
-        save is not required. Answers are stored as submitted; the server does
-        not validate question IDs, choices, completeness, or step values.
+        save is not required. All five valid answers from one supported
+        questionnaire and currentStep: 8 are required. Incomplete, unknown,
+        mixed, malformed, or invalid answers return 400 invalid_onboarding_data
+        before persistence. Legacy clients' five-question payloads remain supported.
 
         A repeated completion succeeds without changing the original final
         answers, step, or completion timestamp. Concurrent completions preserve
@@ -295,28 +296,39 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/OnboardingRequest'
+              allOf:
+                - $ref: '#/components/schemas/OnboardingRequest'
+                - type: object
+                  required: [answers, currentStep]
+                  properties:
+                    currentStep:
+                      type: integer
+                      enum: [8]
+                    answers:
+                      type: object
+                      minProperties: 5
+                      maxProperties: 5
             examples:
               finalAnswers:
                 summary: Final snapshot of all five question answers
                 value:
-                  currentStep: 4
+                  currentStep: 8
                   answers:
-                    focus:
+                    morning-goal:
                       single:
-                        _0: High
-                    distractions:
-                      multiple:
-                        _0: [Social media, Messages]
-                    wake-time:
+                        _0: build-routine
+                    workday-wake-time:
                       time:
                         _0: 815900400
-                    goals:
-                      multiple:
-                        _0: [Focus, Exercise]
-                    experience:
+                    waking-style:
                       single:
-                        _0: Beginner
+                        _0: first-alarm
+                    first-phone-use:
+                      single:
+                        _0: within-10-min
+                    morning-time-available:
+                      single:
+                        _0: 15-30-min
       responses:
         '204':
           description: Onboarding completed, or already completed. No response body.
@@ -354,11 +366,18 @@ components:
       description: |
         The body is empty, malformed, contains an unknown top-level field,
         contains a value of the wrong Go type, or has trailing JSON content.
+        Also returned as invalid_onboarding_data for invalid questionnaire
+        content, out-of-range steps, or an incomplete final submission.
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
           examples:
+            invalidQuestionnaire:
+              value:
+                error:
+                  code: invalid_onboarding_data
+                  message: 'invalid onboarding data: all five questionnaire answers are required'
             emptyBody:
               value:
                 error:
@@ -436,28 +455,51 @@ components:
       description: |
         Shared by Update and Complete, matching the Go OnboardingRequest DTO.
         Swift sends answers and currentStep. Answers replace the saved snapshot.
-        No required-field, questionnaire, or step validation is performed.
-        Omitted answers default to null; omitted currentStep defaults to zero.
+        Partial/empty drafts are allowed. Completion requires all five answers
+        from either the current or legacy questionnaire and currentStep: 8.
+        Submitted values are validated against the chosen questionnaire.
+        In drafts, omitted answers default to null and currentStep to zero.
         Database-managed fields are rejected by the existing JSON decoder.
       properties:
         answers:
           $ref: '#/components/schemas/OnboardingAnswers'
         currentStep:
           type: integer
+          minimum: 0
+          maximum: 8
           description: |
-            Client-defined resume checkpoint. No step range or terminal-step
-            mapping is enforced.
+            Resume checkpoint: question pages 0–4, alarm 5, apps 6, tasks 7,
+            summary 8. Completion requires 8.
           example: 2
     OnboardingAnswers:
       type: object
       description: |
-        Question IDs and Codable shapes from the iOS Onboarding.swift model.
-        These properties document Swift's usual JSON shapes, not server-side
-        validation. The backend stores raw JSON values and allows additional keys.
-        Drafts may omit unanswered questions.
+        Swift Codable answer shapes. Use only current IDs or only legacy IDs;
+        mixing the two versions and unknown IDs is rejected. Single choices
+        must use the documented values. Legacy multiple choices must be unique
+        and nonempty at completion. Time values must be finite numbers in
+        Swift's reference-date encoding. Drafts may omit unanswered questions.
       nullable: true
-      additionalProperties: {}
+      additionalProperties: false
       properties:
+        morning-goal:
+          description: 'Current single choice: get-up-on-time, stop-scrolling, build-routine, feel-awake.'
+          allOf:
+            - $ref: '#/components/schemas/SingleQuestionAnswer'
+        workday-wake-time:
+          $ref: '#/components/schemas/TimeQuestionAnswer'
+        waking-style:
+          description: 'Current single choice: first-alarm, snooze-1-2, snooze-3-plus, several-alarms.'
+          allOf:
+            - $ref: '#/components/schemas/SingleQuestionAnswer'
+        first-phone-use:
+          description: 'Current single choice: in-bed, within-10-min, within-30-min, later.'
+          allOf:
+            - $ref: '#/components/schemas/SingleQuestionAnswer'
+        morning-time-available:
+          description: 'Current single choice: under-15-min, 15-30-min, 30-60-min, over-60-min.'
+          allOf:
+            - $ref: '#/components/schemas/SingleQuestionAnswer'
         focus:
           description: 'Single choice: Low, Medium, or High.'
           allOf:
@@ -534,7 +576,14 @@ components:
         - data
       properties:
         data:
-          $ref: '#/components/schemas/User'
+          type: object
+          required: [User, requiresOnboarding]
+          properties:
+            User:
+              $ref: '#/components/schemas/User'
+            requiresOnboarding:
+              type: boolean
+              description: True when the authenticated account has not completed onboarding.
     User:
       type: object
       description: Field names match the current Go user model's JSON output.
